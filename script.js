@@ -16,6 +16,12 @@ window.onload = () => {
   let colorOn = false;
   let frameOn = false;
 
+  // image position (for drag)
+  let imgX = 0;
+  let imgY = 0;
+  let dragging = false;
+  let startX, startY;
+
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -24,9 +30,8 @@ window.onload = () => {
       saturate(${colorOn ? 2 : 1})
     `;
 
-    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    ctx.drawImage(img, imgX, imgY, canvas.width, canvas.height);
 
-    // frame overlay
     if(frameOn){
       ctx.strokeStyle = "#00ffd5";
       ctx.lineWidth = 10;
@@ -48,6 +53,9 @@ window.onload = () => {
         colorOn = false;
         frameOn = false;
 
+        imgX = 0;
+        imgY = 0;
+
         draw();
       };
 
@@ -60,6 +68,24 @@ window.onload = () => {
   input.addEventListener("change", function(){
     if(this.files[0]) load(this.files[0]);
   });
+
+  // 🔥 DRAG IMAGE (TRIM/MOVE)
+  canvas.addEventListener("mousedown", (e) => {
+    dragging = true;
+    startX = e.offsetX - imgX;
+    startY = e.offsetY - imgY;
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if(dragging){
+      imgX = e.offsetX - startX;
+      imgY = e.offsetY - startY;
+      draw();
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => dragging = false);
+  canvas.addEventListener("mouseleave", () => dragging = false);
 
   // TOOLS
   window.instaColor = function(){
@@ -81,6 +107,8 @@ window.onload = () => {
     brightnessValue = 1;
     colorOn = false;
     frameOn = false;
+    imgX = 0;
+    imgY = 0;
     draw();
   };
 
