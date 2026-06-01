@@ -26,6 +26,9 @@ window.onload = () => {
   // text system
   let texts = [];
 
+  let selectedText = null;
+  let draggingText = false;
+
   function showLoading(){
 
     loading.style.display = "block";
@@ -54,7 +57,7 @@ window.onload = () => {
       ctx.strokeRect(0,0,canvas.width,canvas.height);
     }
 
-    // text overlays
+    // text rendering
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
 
@@ -93,6 +96,67 @@ window.onload = () => {
 
       load(this.files[0]);
     }
+  });
+
+  // ✍ ADD TEXT
+  window.addText = function(){
+
+    const value = textInput.value;
+
+    if(value.trim() !== ""){
+
+      texts.push({
+        value:value,
+        x:50,
+        y:50
+      });
+
+      draw();
+
+      textInput.value = "";
+    }
+  };
+
+  // 🔥 DRAG TEXT SYSTEM
+
+  canvas.addEventListener("mousedown", (e) => {
+
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+
+    ctx.font = "30px Arial";
+
+    texts.forEach(text => {
+
+      const width = ctx.measureText(text.value).width;
+      const height = 30;
+
+      if(
+        mouseX >= text.x &&
+        mouseX <= text.x + width &&
+        mouseY <= text.y &&
+        mouseY >= text.y - height
+      ){
+        selectedText = text;
+        draggingText = true;
+      }
+    });
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+
+    if(draggingText && selectedText){
+
+      selectedText.x = e.offsetX;
+      selectedText.y = e.offsetY;
+
+      draw();
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    draggingText = false;
+    selectedText = null;
   });
 
   // TOOLS
@@ -159,30 +223,13 @@ window.onload = () => {
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     ctx.drawImage(img,50,20,400,260);
+
+    draw();
   };
 
   window.enhanceImage = function(){
     showLoading();
     draw("contrast(1.4) saturate(1.5)");
-  };
-
-  // ✍ ADD TEXT
-  window.addText = function(){
-
-    const value = textInput.value;
-
-    if(value.trim() !== ""){
-
-      texts.push({
-        value:value,
-        x:50,
-        y:50
-      });
-
-      draw();
-
-      textInput.value = "";
-    }
   };
 
   // AI assistant
