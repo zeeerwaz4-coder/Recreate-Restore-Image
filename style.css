@@ -165,3 +165,12 @@ canvas{
   border-radius:12px;
   display:none;
 }
+#textInput{
+  width:170px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+  background:#1c1c1c;
+  color:white;
+  }
