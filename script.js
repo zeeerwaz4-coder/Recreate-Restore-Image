@@ -326,3 +326,20 @@ window.onload = () => {
   };
 
 };
+window.rotateObject = function(angle){
+
+   // 🔥 DELETE SELECTED OBJECT
+
+  window.deleteSelected = function(){
+
+    if(selectedItem){
+
+      texts = texts.filter(item => item !== selectedItem);
+
+      stickers = stickers.filter(item => item !== selectedItem);
+
+      selectedItem = null;
+
+      draw();
+    }
+  };
