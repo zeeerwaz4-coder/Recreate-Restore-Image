@@ -59,17 +59,19 @@ window.onload = () => {
     }
 
     // text
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "white";
-
     texts.forEach(text => {
+
+      ctx.font = `${text.size}px Arial`;
+      ctx.fillStyle = "white";
+
       ctx.fillText(text.value,text.x,text.y);
     });
 
     // stickers
-    ctx.font = "40px Arial";
-
     stickers.forEach(sticker => {
+
+      ctx.font = `${sticker.size}px Arial`;
+
       ctx.fillText(sticker.value, sticker.x, sticker.y);
     });
   }
@@ -106,7 +108,7 @@ window.onload = () => {
     }
   });
 
-  // TEXT
+  // ✍ TEXT
 
   window.addText = function(){
 
@@ -117,7 +119,8 @@ window.onload = () => {
       texts.push({
         value:value,
         x:50,
-        y:50
+        y:50,
+        size:40
       });
 
       draw();
@@ -133,10 +136,23 @@ window.onload = () => {
     stickers.push({
       value:stickerSelect.value,
       x:100,
-      y:100
+      y:100,
+      size:50
     });
 
     draw();
+  };
+
+  // 🔥 RESIZE OBJECT
+
+  window.resizeObject = function(size){
+
+    if(selectedItem){
+
+      selectedItem.size = size;
+
+      draw();
+    }
   };
 
   // DRAG SYSTEM
@@ -149,9 +165,9 @@ window.onload = () => {
     selectedItem = null;
 
     // texts
-    ctx.font = "30px Arial";
-
     texts.forEach(text => {
+
+      ctx.font = `${text.size}px Arial`;
 
       const width = ctx.measureText(text.value).width;
 
@@ -159,7 +175,7 @@ window.onload = () => {
         mouseX >= text.x &&
         mouseX <= text.x + width &&
         mouseY <= text.y &&
-        mouseY >= text.y - 30
+        mouseY >= text.y - text.size
       ){
         selectedItem = text;
         dragging = true;
@@ -167,17 +183,15 @@ window.onload = () => {
     });
 
     // stickers
-    ctx.font = "40px Arial";
-
     stickers.forEach(sticker => {
 
-      const width = 40;
+      const width = sticker.size;
 
       if(
         mouseX >= sticker.x &&
         mouseX <= sticker.x + width &&
         mouseY <= sticker.y &&
-        mouseY >= sticker.y - 40
+        mouseY >= sticker.y - sticker.size
       ){
         selectedItem = sticker;
         dragging = true;
@@ -198,7 +212,6 @@ window.onload = () => {
 
   canvas.addEventListener("mouseup", () => {
     dragging = false;
-    selectedItem = null;
   });
 
   // TOOLS
