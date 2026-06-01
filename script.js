@@ -1,64 +1,41 @@
-// script.js
-
 window.onload = () => {
 
-  // Greeting
   const speech = new SpeechSynthesisUtterance(
     "Welcome to Recreate and Restore"
   );
   speech.lang = "en-US";
   window.speechSynthesis.speak(speech);
 
-  const uploadBox = document.querySelector(".upload-box");
   const input = document.getElementById("imageUpload");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
 
-  // show image function
-  function showImage(file) {
+  let img = new Image();
+
+  function loadImage(file){
     const reader = new FileReader();
 
-    reader.onload = function (e) {
+    reader.onload = function(e){
+      img = new Image();
 
-      let oldImg = uploadBox.querySelector("img");
-      if (oldImg) oldImg.remove();
+      img.onload = function(){
 
-      const img = document.createElement("img");
+        canvas.width = 500;
+        canvas.height = 300;
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      };
+
       img.src = e.target.result;
-      img.style.maxWidth = "100%";
-      img.style.maxHeight = "100%";
-      img.style.borderRadius = "15px";
-
-      uploadBox.appendChild(img);
     };
 
     reader.readAsDataURL(file);
   }
 
-  // click upload
-  input.addEventListener("change", function () {
-    if (this.files[0]) {
-      showImage(this.files[0]);
-    }
-  });
-
-  // drag over
-  uploadBox.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    uploadBox.style.border = "3px solid #00ffd5";
-  });
-
-  // drag leave
-  uploadBox.addEventListener("dragleave", () => {
-    uploadBox.style.border = "3px dashed #00ffd5";
-  });
-
-  // drop
-  uploadBox.addEventListener("drop", (e) => {
-    e.preventDefault();
-    uploadBox.style.border = "3px dashed #00ffd5";
-
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      showImage(file);
+  input.addEventListener("change", function(){
+    if(this.files[0]){
+      loadImage(this.files[0]);
     }
   });
 
