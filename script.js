@@ -286,7 +286,7 @@ window.onload = () => {
       // STICKER
       if(selectedItem.type === "sticker"){
 
-        stickers = texts.filter(
+        stickers = stickers.filter(
           item => item !== selectedItem
         );
 
