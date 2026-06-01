@@ -15,11 +15,16 @@ window.onload = () => {
   const loading = document.getElementById("loading");
   const aiAssistant = document.getElementById("aiAssistant");
 
+  const textInput = document.getElementById("textInput");
+
   let img = new Image();
 
   let brightnessValue = 1;
   let colorOn = false;
   let frameOn = false;
+
+  // text system
+  let texts = [];
 
   function showLoading(){
 
@@ -42,11 +47,20 @@ window.onload = () => {
 
     ctx.drawImage(img,0,0,canvas.width,canvas.height);
 
+    // frame
     if(frameOn){
       ctx.strokeStyle = "#00ffd5";
       ctx.lineWidth = 10;
       ctx.strokeRect(0,0,canvas.width,canvas.height);
     }
+
+    // text overlays
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+
+    texts.forEach(text => {
+      ctx.fillText(text.value, text.x, text.y);
+    });
   }
 
   function load(file){
@@ -102,11 +116,14 @@ window.onload = () => {
   };
 
   window.resetImage = function(){
+
     showLoading();
 
     brightnessValue = 1;
     colorOn = false;
     frameOn = false;
+
+    texts = [];
 
     draw();
   };
@@ -149,15 +166,32 @@ window.onload = () => {
     draw("contrast(1.4) saturate(1.5)");
   };
 
-  // 🤖 AI Assistant Click
+  // ✍ ADD TEXT
+  window.addText = function(){
+
+    const value = textInput.value;
+
+    if(value.trim() !== ""){
+
+      texts.push({
+        value:value,
+        x:50,
+        y:50
+      });
+
+      draw();
+
+      textInput.value = "";
+    }
+  };
+
+  // AI assistant
 
   aiAssistant.onclick = () => {
 
     const text = new SpeechSynthesisUtterance(
       "Hello. I am your AI restoration assistant."
     );
-
-    speech.lang = "en-US";
 
     window.speechSynthesis.speak(text);
   };
