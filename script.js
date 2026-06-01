@@ -16,6 +16,7 @@ window.onload = () => {
   const aiAssistant = document.getElementById("aiAssistant");
 
   const textInput = document.getElementById("textInput");
+  const stickerSelect = document.getElementById("stickerSelect");
 
   let img = new Image();
 
@@ -23,11 +24,11 @@ window.onload = () => {
   let colorOn = false;
   let frameOn = false;
 
-  // text system
   let texts = [];
+  let stickers = [];
 
-  let selectedText = null;
-  let draggingText = false;
+  let selectedItem = null;
+  let dragging = false;
 
   function showLoading(){
 
@@ -57,12 +58,19 @@ window.onload = () => {
       ctx.strokeRect(0,0,canvas.width,canvas.height);
     }
 
-    // text rendering
+    // text
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
 
     texts.forEach(text => {
-      ctx.fillText(text.value, text.x, text.y);
+      ctx.fillText(text.value,text.x,text.y);
+    });
+
+    // stickers
+    ctx.font = "40px Arial";
+
+    stickers.forEach(sticker => {
+      ctx.fillText(sticker.value, sticker.x, sticker.y);
     });
   }
 
@@ -98,7 +106,8 @@ window.onload = () => {
     }
   });
 
-  // ✍ ADD TEXT
+  // TEXT
+
   window.addText = function(){
 
     const value = textInput.value;
@@ -117,46 +126,79 @@ window.onload = () => {
     }
   };
 
-  // 🔥 DRAG TEXT SYSTEM
+  // 🔥 STICKERS
+
+  window.addSticker = function(){
+
+    stickers.push({
+      value:stickerSelect.value,
+      x:100,
+      y:100
+    });
+
+    draw();
+  };
+
+  // DRAG SYSTEM
 
   canvas.addEventListener("mousedown", (e) => {
 
     const mouseX = e.offsetX;
     const mouseY = e.offsetY;
 
+    selectedItem = null;
+
+    // texts
     ctx.font = "30px Arial";
 
     texts.forEach(text => {
 
       const width = ctx.measureText(text.value).width;
-      const height = 30;
 
       if(
         mouseX >= text.x &&
         mouseX <= text.x + width &&
         mouseY <= text.y &&
-        mouseY >= text.y - height
+        mouseY >= text.y - 30
       ){
-        selectedText = text;
-        draggingText = true;
+        selectedItem = text;
+        dragging = true;
+      }
+    });
+
+    // stickers
+    ctx.font = "40px Arial";
+
+    stickers.forEach(sticker => {
+
+      const width = 40;
+
+      if(
+        mouseX >= sticker.x &&
+        mouseX <= sticker.x + width &&
+        mouseY <= sticker.y &&
+        mouseY >= sticker.y - 40
+      ){
+        selectedItem = sticker;
+        dragging = true;
       }
     });
   });
 
   canvas.addEventListener("mousemove", (e) => {
 
-    if(draggingText && selectedText){
+    if(dragging && selectedItem){
 
-      selectedText.x = e.offsetX;
-      selectedText.y = e.offsetY;
+      selectedItem.x = e.offsetX;
+      selectedItem.y = e.offsetY;
 
       draw();
     }
   });
 
   canvas.addEventListener("mouseup", () => {
-    draggingText = false;
-    selectedText = null;
+    dragging = false;
+    selectedItem = null;
   });
 
   // TOOLS
@@ -188,6 +230,7 @@ window.onload = () => {
     frameOn = false;
 
     texts = [];
+    stickers = [];
 
     draw();
   };
