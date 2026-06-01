@@ -54,7 +54,14 @@
     <div class="tools-panel">
 
   <button onclick="instaColor()">Insta Color</button>
-  <button onclick="brightness()">Brightness</button>
+
+  <label>Brightness</label>
+  <input type="range" min="0.5" max="2" step="0.1" value="1"
+         oninput="setBrightness(this.value)">
+
+  <label>Frame</label>
+  <button onclick="addFrame()">Add Frame</button>
+
   <button onclick="resetImage()">Reset</button>
 
     </div>
