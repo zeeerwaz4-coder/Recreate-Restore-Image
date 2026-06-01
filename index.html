@@ -68,6 +68,14 @@ max="100"
 value="40"
 id="sizeSlider"
 oninput="resizeObject(this.value)">
+      <label>Rotate Object</label>
+
+<input type="range"
+min="-180"
+max="180"
+value="0"
+id="rotateSlider"
+oninput="rotateObject(this.value)">
 
 <button onclick="addSticker()">
   Add Sticker
