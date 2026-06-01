@@ -12,6 +12,20 @@ window.onload = () => {
 
   let img = new Image();
 
+  let currentBrightness = 1;
+  let currentColor = false;
+
+  function drawImage(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.filter = `
+      brightness(${currentBrightness})
+      saturate(${currentColor ? 2 : 1})
+    `;
+
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  }
+
   function loadImage(file){
     const reader = new FileReader();
 
@@ -19,12 +33,11 @@ window.onload = () => {
       img = new Image();
 
       img.onload = function(){
-
         canvas.width = 500;
         canvas.height = 300;
-
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        currentBrightness = 1;
+        currentColor = false;
+        drawImage();
       };
 
       img.src = e.target.result;
@@ -38,5 +51,22 @@ window.onload = () => {
       loadImage(this.files[0]);
     }
   });
+
+  // 🔥 TOOLS
+  window.instaColor = function(){
+    currentColor = true;
+    drawImage();
+  };
+
+  window.brightness = function(){
+    currentBrightness += 0.2;
+    drawImage();
+  };
+
+  window.resetImage = function(){
+    currentBrightness = 1;
+    currentColor = false;
+    drawImage();
+  };
 
 };
