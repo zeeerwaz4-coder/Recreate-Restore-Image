@@ -3,12 +3,17 @@ window.onload = () => {
   const speech = new SpeechSynthesisUtterance(
     "Welcome to Recreate and Restore"
   );
+
   speech.lang = "en-US";
+
   window.speechSynthesis.speak(speech);
 
   const input = document.getElementById("imageUpload");
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
+
+  const loading = document.getElementById("loading");
+  const aiAssistant = document.getElementById("aiAssistant");
 
   let img = new Image();
 
@@ -16,21 +21,26 @@ window.onload = () => {
   let colorOn = false;
   let frameOn = false;
 
-  let imgX = 0;
-  let imgY = 0;
+  function showLoading(){
+
+    loading.style.display = "block";
+
+    setTimeout(() => {
+      loading.style.display = "none";
+    },1500);
+  }
 
   function draw(customFilter = ""){
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    let baseFilter = `
+    ctx.filter = `
       brightness(${brightnessValue})
       saturate(${colorOn ? 2 : 1})
+      ${customFilter}
     `;
 
-    ctx.filter = baseFilter + " " + customFilter;
-
-    ctx.drawImage(img, imgX, imgY, canvas.width, canvas.height);
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
 
     if(frameOn){
       ctx.strokeStyle = "#00ffd5";
@@ -40,6 +50,7 @@ window.onload = () => {
   }
 
   function load(file){
+
     const reader = new FileReader();
 
     reader.onload = function(e){
@@ -51,13 +62,6 @@ window.onload = () => {
         canvas.width = 500;
         canvas.height = 300;
 
-        brightnessValue = 1;
-        colorOn = false;
-        frameOn = false;
-
-        imgX = 0;
-        imgY = 0;
-
         draw();
       };
 
@@ -68,77 +72,94 @@ window.onload = () => {
   }
 
   input.addEventListener("change", function(){
+
     if(this.files[0]){
+
+      showLoading();
+
       load(this.files[0]);
     }
   });
 
-  // BASIC TOOLS
+  // TOOLS
 
   window.instaColor = function(){
+    showLoading();
     colorOn = true;
     draw();
   };
 
   window.setBrightness = function(value){
+    showLoading();
     brightnessValue = value;
     draw();
   };
 
   window.addFrame = function(){
+    showLoading();
     frameOn = true;
     draw();
   };
 
   window.resetImage = function(){
+    showLoading();
+
     brightnessValue = 1;
     colorOn = false;
     frameOn = false;
+
     draw();
   };
 
-  // FILTERS
-
   window.vintage = function(){
-    draw("sepia(1) contrast(1.2)");
+    showLoading();
+    draw("sepia(1)");
   };
 
   window.blurImg = function(){
+    showLoading();
     draw("blur(3px)");
   };
 
   window.sharpen = function(){
+    showLoading();
     draw("contrast(1.5)");
   };
 
-  // 🤖 FAKE AI BACKGROUND
-
   window.removeBackground = function(){
+
+    showLoading();
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // gradient background
     const gradient = ctx.createLinearGradient(0,0,500,300);
 
     gradient.addColorStop(0,"#111");
     gradient.addColorStop(1,"#00ffd5");
 
     ctx.fillStyle = gradient;
+
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     ctx.drawImage(img,50,20,400,260);
-
-    if(frameOn){
-      ctx.strokeStyle = "#00ffd5";
-      ctx.lineWidth = 10;
-      ctx.strokeRect(0,0,canvas.width,canvas.height);
-    }
   };
 
-  // ✨ AI ENHANCE
-
   window.enhanceImage = function(){
-    draw("contrast(1.4) saturate(1.5) brightness(1.1)");
+    showLoading();
+    draw("contrast(1.4) saturate(1.5)");
+  };
+
+  // 🤖 AI Assistant Click
+
+  aiAssistant.onclick = () => {
+
+    const text = new SpeechSynthesisUtterance(
+      "Hello. I am your AI restoration assistant."
+    );
+
+    speech.lang = "en-US";
+
+    window.speechSynthesis.speak(text);
   };
 
 };
