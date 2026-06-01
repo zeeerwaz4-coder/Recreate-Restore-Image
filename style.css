@@ -174,3 +174,11 @@ canvas{
   background:#1c1c1c;
   color:white;
   }
+#stickerSelect{
+  width:180px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#1c1c1c;
+  color:white;
+}
