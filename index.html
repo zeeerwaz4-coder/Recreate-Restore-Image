@@ -60,6 +60,14 @@
   <option>🌟</option>
   <option>👑</option>
 </select>
+      <label>Object Size</label>
+
+<input type="range"
+min="20"
+max="100"
+value="40"
+id="sizeSlider"
+oninput="resizeObject(this.value)">
 
 <button onclick="addSticker()">
   Add Sticker
