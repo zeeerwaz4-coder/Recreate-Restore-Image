@@ -12,21 +12,29 @@ window.onload = () => {
 
   let img = new Image();
 
-  let currentBrightness = 1;
-  let currentColor = false;
+  let brightnessValue = 1;
+  let colorOn = false;
+  let frameOn = false;
 
-  function drawImage(){
+  function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     ctx.filter = `
-      brightness(${currentBrightness})
-      saturate(${currentColor ? 2 : 1})
+      brightness(${brightnessValue})
+      saturate(${colorOn ? 2 : 1})
     `;
 
     ctx.drawImage(img,0,0,canvas.width,canvas.height);
+
+    // frame overlay
+    if(frameOn){
+      ctx.strokeStyle = "#00ffd5";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(0,0,canvas.width,canvas.height);
+    }
   }
 
-  function loadImage(file){
+  function load(file){
     const reader = new FileReader();
 
     reader.onload = function(e){
@@ -35,9 +43,12 @@ window.onload = () => {
       img.onload = function(){
         canvas.width = 500;
         canvas.height = 300;
-        currentBrightness = 1;
-        currentColor = false;
-        drawImage();
+
+        brightnessValue = 1;
+        colorOn = false;
+        frameOn = false;
+
+        draw();
       };
 
       img.src = e.target.result;
@@ -47,26 +58,30 @@ window.onload = () => {
   }
 
   input.addEventListener("change", function(){
-    if(this.files[0]){
-      loadImage(this.files[0]);
-    }
+    if(this.files[0]) load(this.files[0]);
   });
 
-  // 🔥 TOOLS
+  // TOOLS
   window.instaColor = function(){
-    currentColor = true;
-    drawImage();
+    colorOn = true;
+    draw();
   };
 
-  window.brightness = function(){
-    currentBrightness += 0.2;
-    drawImage();
+  window.setBrightness = function(value){
+    brightnessValue = value;
+    draw();
+  };
+
+  window.addFrame = function(){
+    frameOn = true;
+    draw();
   };
 
   window.resetImage = function(){
-    currentBrightness = 1;
-    currentColor = false;
-    drawImage();
+    brightnessValue = 1;
+    colorOn = false;
+    frameOn = false;
+    draw();
   };
 
 };
