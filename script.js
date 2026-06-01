@@ -29,6 +29,10 @@ window.onload = () => {
 
   let selectedItem = null;
   let dragging = false;
+  // 🔥 HISTORY SYSTEM
+
+  let history = [];
+  let redoStack = [];
 
   let offsetX = 0;
   let offsetY = 0;
@@ -40,7 +44,66 @@ window.onload = () => {
     setTimeout(() => {
       loading.style.display = "none";
     },1500);
+  } 
+  // 🔥 SAVE HISTORY
+
+  function saveHistory(){
+
+    const snapshot = {
+      images: JSON.parse(JSON.stringify(images)),
+      texts: JSON.parse(JSON.stringify(texts)),
+      stickers: JSON.parse(JSON.stringify(stickers))
+    };
+
+    history.push(snapshot);
+
+    if(history.length > 50){
+      history.shift();
+    }
+
+    redoStack = [];
   }
+  // 🔥 UNDO
+
+  window.undoAction = function(){
+
+    if(history.length > 1){
+
+      const current = history.pop();
+
+      redoStack.push(current);
+
+      const previous = history[history.length - 1];
+
+      images = JSON.parse(JSON.stringify(previous.images));
+      texts = JSON.parse(JSON.stringify(previous.texts));
+      stickers = JSON.parse(JSON.stringify(previous.stickers));
+
+      redrawImages();
+
+      draw();
+    }
+  };
+
+  // 🔥 REDO
+
+  window.redoAction = function(){
+
+    if(redoStack.length > 0){
+
+      const restored = redoStack.pop();
+
+      history.push(restored);
+
+      images = JSON.parse(JSON.stringify(restored.images));
+      texts = JSON.parse(JSON.stringify(restored.texts));
+      stickers = JSON.parse(JSON.stringify(restored.stickers));
+
+      redrawImages();
+
+      draw();
+    }
+  };
 
   function draw(customFilter = ""){
 
