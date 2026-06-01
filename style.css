@@ -114,3 +114,7 @@ h1{
 .tools-panel button:hover{
   transform:scale(1.05);
     }
+.upload-box{
+  overflow:hidden;
+  position:relative;
+  }
