@@ -217,6 +217,85 @@ window.onload = () => {
   // DELETE
 
   window.deleteSelected = function(){
+    // 🔥 BRING TO FRONT
+
+  window.bringFront = function(){
+
+    if(selectedItem){
+
+      // IMAGE
+      if(selectedItem.type === "image"){
+
+        images = images.filter(
+          item => item !== selectedItem
+        );
+
+        images.push(selectedItem);
+      }
+
+      // TEXT
+      if(selectedItem.type === "text"){
+
+        texts = texts.filter(
+          item => item !== selectedItem
+        );
+
+        texts.push(selectedItem);
+      }
+
+      // STICKER
+      if(selectedItem.type === "sticker"){
+
+        stickers = stickers.filter(
+          item => item !== selectedItem
+        );
+
+        stickers.push(selectedItem);
+      }
+
+      draw();
+    }
+  };
+
+  // 🔥 SEND TO BACK
+
+  window.sendBack = function(){
+
+    if(selectedItem){
+
+      // IMAGE
+      if(selectedItem.type === "image"){
+
+        images = images.filter(
+          item => item !== selectedItem
+        );
+
+        images.unshift(selectedItem);
+      }
+
+      // TEXT
+      if(selectedItem.type === "text"){
+
+        texts = texts.filter(
+          item => item !== selectedItem
+        );
+
+        texts.unshift(selectedItem);
+      }
+
+      // STICKER
+      if(selectedItem.type === "sticker"){
+
+        stickers = texts.filter(
+          item => item !== selectedItem
+        );
+
+        stickers.unshift(selectedItem);
+      }
+
+      draw();
+    }
+  };
 
     if(selectedItem){
 
