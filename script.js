@@ -58,21 +58,35 @@ window.onload = () => {
       ctx.strokeRect(0,0,canvas.width,canvas.height);
     }
 
-    // text
+    // TEXT
     texts.forEach(text => {
+
+      ctx.save();
+
+      ctx.translate(text.x, text.y);
+      ctx.rotate(text.rotation * Math.PI / 180);
 
       ctx.font = `${text.size}px Arial`;
       ctx.fillStyle = "white";
 
-      ctx.fillText(text.value,text.x,text.y);
+      ctx.fillText(text.value,0,0);
+
+      ctx.restore();
     });
 
-    // stickers
+    // STICKERS
     stickers.forEach(sticker => {
+
+      ctx.save();
+
+      ctx.translate(sticker.x, sticker.y);
+      ctx.rotate(sticker.rotation * Math.PI / 180);
 
       ctx.font = `${sticker.size}px Arial`;
 
-      ctx.fillText(sticker.value, sticker.x, sticker.y);
+      ctx.fillText(sticker.value,0,0);
+
+      ctx.restore();
     });
   }
 
@@ -108,7 +122,7 @@ window.onload = () => {
     }
   });
 
-  // ✍ TEXT
+  // TEXT
 
   window.addText = function(){
 
@@ -120,7 +134,8 @@ window.onload = () => {
         value:value,
         x:50,
         y:50,
-        size:40
+        size:40,
+        rotation:0
       });
 
       draw();
@@ -129,7 +144,7 @@ window.onload = () => {
     }
   };
 
-  // 🔥 STICKERS
+  // STICKERS
 
   window.addSticker = function(){
 
@@ -137,19 +152,32 @@ window.onload = () => {
       value:stickerSelect.value,
       x:100,
       y:100,
-      size:50
+      size:50,
+      rotation:0
     });
 
     draw();
   };
 
-  // 🔥 RESIZE OBJECT
+  // 🔥 RESIZE
 
   window.resizeObject = function(size){
 
     if(selectedItem){
 
       selectedItem.size = size;
+
+      draw();
+    }
+  };
+
+  // 🔥 ROTATE
+
+  window.rotateObject = function(angle){
+
+    if(selectedItem){
+
+      selectedItem.rotation = angle;
 
       draw();
     }
@@ -164,7 +192,6 @@ window.onload = () => {
 
     selectedItem = null;
 
-    // texts
     texts.forEach(text => {
 
       ctx.font = `${text.size}px Arial`;
@@ -182,7 +209,6 @@ window.onload = () => {
       }
     });
 
-    // stickers
     stickers.forEach(sticker => {
 
       const width = sticker.size;
