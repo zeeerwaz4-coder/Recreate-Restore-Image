@@ -129,3 +129,39 @@ canvas{
   width:100%;
   border:1px solid #333;
 }
+/* Floating AI Assistant */
+
+.ai-assistant{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#00ffd5;
+  color:black;
+  padding:15px 20px;
+  border-radius:50px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 15px #00ffd5;
+  animation:float 2s infinite ease-in-out;
+}
+
+/* Floating effect */
+@keyframes float{
+  0%{ transform:translateY(0px); }
+  50%{ transform:translateY(-10px); }
+  100%{ transform:translateY(0px); }
+}
+
+/* Loading box */
+
+.loading{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#111;
+  color:#00ffd5;
+  padding:12px 20px;
+  border:2px solid #00ffd5;
+  border-radius:12px;
+  display:none;
+}
