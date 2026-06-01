@@ -16,11 +16,29 @@ window.onload = () => {
   let colorOn = false;
   let frameOn = false;
 
-  // image position (for drag)
   let imgX = 0;
   let imgY = 0;
   let dragging = false;
   let startX, startY;
+
+  // 🔥 undo system
+  let history = [];
+
+  function saveState(){
+    history.push(canvas.toDataURL());
+  }
+
+  function undo(){
+    if(history.length > 1){
+      history.pop();
+      let imgData = new Image();
+      imgData.onload = () => {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(imgData,0,0);
+      };
+      imgData.src = history[history.length - 1];
+    }
+  }
 
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -52,11 +70,11 @@ window.onload = () => {
         brightnessValue = 1;
         colorOn = false;
         frameOn = false;
-
         imgX = 0;
         imgY = 0;
 
         draw();
+        saveState(); // first state
       };
 
       img.src = e.target.result;
@@ -69,7 +87,7 @@ window.onload = () => {
     if(this.files[0]) load(this.files[0]);
   });
 
-  // 🔥 DRAG IMAGE (TRIM/MOVE)
+  // DRAG MOVE
   canvas.addEventListener("mousedown", (e) => {
     dragging = true;
     startX = e.offsetX - imgX;
@@ -84,23 +102,30 @@ window.onload = () => {
     }
   });
 
-  canvas.addEventListener("mouseup", () => dragging = false);
+  canvas.addEventListener("mouseup", () => {
+    dragging = false;
+    saveState(); // save after move
+  });
+
   canvas.addEventListener("mouseleave", () => dragging = false);
 
   // TOOLS
   window.instaColor = function(){
     colorOn = true;
     draw();
+    saveState();
   };
 
   window.setBrightness = function(value){
     brightnessValue = value;
     draw();
+    saveState();
   };
 
   window.addFrame = function(){
     frameOn = true;
     draw();
+    saveState();
   };
 
   window.resetImage = function(){
@@ -110,6 +135,20 @@ window.onload = () => {
     imgX = 0;
     imgY = 0;
     draw();
+    saveState();
+  };
+
+  // 🔥 NEW: SAVE IMAGE
+  window.saveImage = function(){
+    const link = document.createElement("a");
+    link.download = "recreate_restore.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
+  // 🔥 NEW: UNDO
+  window.undo = function(){
+    undo();
   };
 
 };
