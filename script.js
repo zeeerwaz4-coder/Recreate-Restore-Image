@@ -19,13 +19,16 @@ window.onload = () => {
   let imgX = 0;
   let imgY = 0;
 
-  function draw(){
+  function draw(customFilter = ""){
+
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.filter = `
+    let baseFilter = `
       brightness(${brightnessValue})
       saturate(${colorOn ? 2 : 1})
     `;
+
+    ctx.filter = baseFilter + " " + customFilter;
 
     ctx.drawImage(img, imgX, imgY, canvas.width, canvas.height);
 
@@ -40,15 +43,18 @@ window.onload = () => {
     const reader = new FileReader();
 
     reader.onload = function(e){
+
       img = new Image();
 
       img.onload = function(){
+
         canvas.width = 500;
         canvas.height = 300;
 
         brightnessValue = 1;
         colorOn = false;
         frameOn = false;
+
         imgX = 0;
         imgY = 0;
 
@@ -62,10 +68,13 @@ window.onload = () => {
   }
 
   input.addEventListener("change", function(){
-    if(this.files[0]) load(this.files[0]);
+    if(this.files[0]){
+      load(this.files[0]);
+    }
   });
 
-  // TOOLS
+  // BASIC TOOLS
+
   window.instaColor = function(){
     colorOn = true;
     draw();
@@ -88,21 +97,48 @@ window.onload = () => {
     draw();
   };
 
-  // 🎨 FILTERS
+  // FILTERS
 
   window.vintage = function(){
-    ctx.filter = "sepia(1) contrast(1.2) brightness(0.9)";
-    draw();
+    draw("sepia(1) contrast(1.2)");
   };
 
   window.blurImg = function(){
-    ctx.filter = "blur(3px)";
-    draw();
+    draw("blur(3px)");
   };
 
   window.sharpen = function(){
-    ctx.filter = "contrast(1.5) saturate(1.2)";
-    draw();
+    draw("contrast(1.5)");
+  };
+
+  // 🤖 FAKE AI BACKGROUND
+
+  window.removeBackground = function(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // gradient background
+    const gradient = ctx.createLinearGradient(0,0,500,300);
+
+    gradient.addColorStop(0,"#111");
+    gradient.addColorStop(1,"#00ffd5");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.drawImage(img,50,20,400,260);
+
+    if(frameOn){
+      ctx.strokeStyle = "#00ffd5";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(0,0,canvas.width,canvas.height);
+    }
+  };
+
+  // ✨ AI ENHANCE
+
+  window.enhanceImage = function(){
+    draw("contrast(1.4) saturate(1.5) brightness(1.1)");
   };
 
 };
