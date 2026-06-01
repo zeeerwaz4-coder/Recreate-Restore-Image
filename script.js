@@ -18,7 +18,8 @@ window.onload = () => {
   const textInput = document.getElementById("textInput");
   const stickerSelect = document.getElementById("stickerSelect");
 
-  let img = new Image();
+  // 🔥 IMAGE LAYERS
+  let images = [];
 
   let brightnessValue = 1;
   let colorOn = false;
@@ -49,7 +50,17 @@ window.onload = () => {
       ${customFilter}
     `;
 
-    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    // 🔥 DRAW ALL IMAGE LAYERS
+    images.forEach(layer => {
+
+      ctx.drawImage(
+        layer.img,
+        layer.x,
+        layer.y,
+        layer.width,
+        layer.height
+      );
+    });
 
     // frame
     if(frameOn){
@@ -58,15 +69,17 @@ window.onload = () => {
       ctx.strokeRect(0,0,canvas.width,canvas.height);
     }
 
-    // TEXT
+    // texts
     texts.forEach(text => {
 
       ctx.save();
 
-      ctx.translate(text.x, text.y);
+      ctx.translate(text.x,text.y);
+
       ctx.rotate(text.rotation * Math.PI / 180);
 
       ctx.font = `${text.size}px Arial`;
+
       ctx.fillStyle = "white";
 
       ctx.fillText(text.value,0,0);
@@ -74,12 +87,13 @@ window.onload = () => {
       ctx.restore();
     });
 
-    // STICKERS
+    // stickers
     stickers.forEach(sticker => {
 
       ctx.save();
 
-      ctx.translate(sticker.x, sticker.y);
+      ctx.translate(sticker.x,sticker.y);
+
       ctx.rotate(sticker.rotation * Math.PI / 180);
 
       ctx.font = `${sticker.size}px Arial`;
@@ -90,40 +104,43 @@ window.onload = () => {
     });
   }
 
-  function load(file){
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-      img = new Image();
-
-      img.onload = function(){
-
-        canvas.width = 500;
-        canvas.height = 300;
-
-        draw();
-      };
-
-      img.src = e.target.result;
-    };
-
-    reader.readAsDataURL(file);
-  }
-
+  // 🔥 LOAD MULTIPLE IMAGES
   input.addEventListener("change", function(){
 
-    if(this.files[0]){
+    const files = Array.from(this.files);
 
-      showLoading();
+    files.forEach(file => {
 
-      load(this.files[0]);
-    }
+      const reader = new FileReader();
+
+      reader.onload = function(e){
+
+        const img = new Image();
+
+        img.onload = function(){
+
+          canvas.width = 500;
+          canvas.height = 300;
+
+          images.push({
+            img:img,
+            x:0,
+            y:0,
+            width:500,
+            height:300
+          });
+
+          draw();
+        };
+
+        img.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    });
   });
 
   // TEXT
-
   window.addText = function(){
 
     const value = textInput.value;
@@ -145,7 +162,6 @@ window.onload = () => {
   };
 
   // STICKERS
-
   window.addSticker = function(){
 
     stickers.push({
@@ -159,8 +175,7 @@ window.onload = () => {
     draw();
   };
 
-  // 🔥 RESIZE
-
+  // RESIZE
   window.resizeObject = function(size){
 
     if(selectedItem){
@@ -171,13 +186,27 @@ window.onload = () => {
     }
   };
 
-  // 🔥 ROTATE
-
+  // ROTATE
   window.rotateObject = function(angle){
 
     if(selectedItem){
 
       selectedItem.rotation = angle;
+
+      draw();
+    }
+  };
+
+  // DELETE
+  window.deleteSelected = function(){
+
+    if(selectedItem){
+
+      texts = texts.filter(item => item !== selectedItem);
+
+      stickers = stickers.filter(item => item !== selectedItem);
+
+      selectedItem = null;
 
       draw();
     }
@@ -268,6 +297,7 @@ window.onload = () => {
     colorOn = false;
     frameOn = false;
 
+    images = [];
     texts = [];
     stickers = [];
 
@@ -304,8 +334,6 @@ window.onload = () => {
 
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.drawImage(img,50,20,400,260);
-
     draw();
   };
 
@@ -326,20 +354,3 @@ window.onload = () => {
   };
 
 };
-window.rotateObject = function(angle){
-
-   // 🔥 DELETE SELECTED OBJECT
-
-  window.deleteSelected = function(){
-
-    if(selectedItem){
-
-      texts = texts.filter(item => item !== selectedItem);
-
-      stickers = stickers.filter(item => item !== selectedItem);
-
-      selectedItem = null;
-
-      draw();
-    }
-  };
