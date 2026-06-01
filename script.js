@@ -18,7 +18,6 @@ window.onload = () => {
   const textInput = document.getElementById("textInput");
   const stickerSelect = document.getElementById("stickerSelect");
 
-  // 🔥 IMAGE LAYERS
   let images = [];
 
   let brightnessValue = 1;
@@ -30,6 +29,9 @@ window.onload = () => {
 
   let selectedItem = null;
   let dragging = false;
+
+  let offsetX = 0;
+  let offsetY = 0;
 
   function showLoading(){
 
@@ -50,7 +52,7 @@ window.onload = () => {
       ${customFilter}
     `;
 
-    // 🔥 DRAW ALL IMAGE LAYERS
+    // 🔥 DRAW IMAGE LAYERS
     images.forEach(layer => {
 
       ctx.drawImage(
@@ -69,7 +71,7 @@ window.onload = () => {
       ctx.strokeRect(0,0,canvas.width,canvas.height);
     }
 
-    // texts
+    // TEXTS
     texts.forEach(text => {
 
       ctx.save();
@@ -87,7 +89,7 @@ window.onload = () => {
       ctx.restore();
     });
 
-    // stickers
+    // STICKERS
     stickers.forEach(sticker => {
 
       ctx.save();
@@ -104,7 +106,8 @@ window.onload = () => {
     });
   }
 
-  // 🔥 LOAD MULTIPLE IMAGES
+  // LOAD IMAGES
+
   input.addEventListener("change", function(){
 
     const files = Array.from(this.files);
@@ -123,11 +126,12 @@ window.onload = () => {
           canvas.height = 300;
 
           images.push({
+            type:"image",
             img:img,
             x:0,
             y:0,
-            width:500,
-            height:300
+            width:300,
+            height:200
           });
 
           draw();
@@ -141,6 +145,7 @@ window.onload = () => {
   });
 
   // TEXT
+
   window.addText = function(){
 
     const value = textInput.value;
@@ -148,6 +153,7 @@ window.onload = () => {
     if(value.trim() !== ""){
 
       texts.push({
+        type:"text",
         value:value,
         x:50,
         y:50,
@@ -162,9 +168,11 @@ window.onload = () => {
   };
 
   // STICKERS
+
   window.addSticker = function(){
 
     stickers.push({
+      type:"sticker",
       value:stickerSelect.value,
       x:100,
       y:100,
@@ -176,20 +184,29 @@ window.onload = () => {
   };
 
   // RESIZE
+
   window.resizeObject = function(size){
 
     if(selectedItem){
 
-      selectedItem.size = size;
+      if(selectedItem.type === "image"){
+
+        selectedItem.width = size * 5;
+        selectedItem.height = size * 3;
+      }
+      else{
+        selectedItem.size = size;
+      }
 
       draw();
     }
   };
 
   // ROTATE
+
   window.rotateObject = function(angle){
 
-    if(selectedItem){
+    if(selectedItem && selectedItem.type !== "image"){
 
       selectedItem.rotation = angle;
 
@@ -198,9 +215,12 @@ window.onload = () => {
   };
 
   // DELETE
+
   window.deleteSelected = function(){
 
     if(selectedItem){
+
+      images = images.filter(item => item !== selectedItem);
 
       texts = texts.filter(item => item !== selectedItem);
 
@@ -212,7 +232,7 @@ window.onload = () => {
     }
   };
 
-  // DRAG SYSTEM
+  // 🔥 DRAG SYSTEM
 
   canvas.addEventListener("mousedown", (e) => {
 
@@ -221,6 +241,30 @@ window.onload = () => {
 
     selectedItem = null;
 
+    // CHECK IMAGE LAYERS
+    for(let i = images.length - 1; i >= 0; i--){
+
+      const layer = images[i];
+
+      if(
+        mouseX >= layer.x &&
+        mouseX <= layer.x + layer.width &&
+        mouseY >= layer.y &&
+        mouseY <= layer.y + layer.height
+      ){
+
+        selectedItem = layer;
+
+        offsetX = mouseX - layer.x;
+        offsetY = mouseY - layer.y;
+
+        dragging = true;
+
+        return;
+      }
+    }
+
+    // CHECK TEXTS
     texts.forEach(text => {
 
       ctx.font = `${text.size}px Arial`;
@@ -233,22 +277,31 @@ window.onload = () => {
         mouseY <= text.y &&
         mouseY >= text.y - text.size
       ){
+
         selectedItem = text;
+
+        offsetX = mouseX - text.x;
+        offsetY = mouseY - text.y;
+
         dragging = true;
       }
     });
 
+    // CHECK STICKERS
     stickers.forEach(sticker => {
-
-      const width = sticker.size;
 
       if(
         mouseX >= sticker.x &&
-        mouseX <= sticker.x + width &&
+        mouseX <= sticker.x + sticker.size &&
         mouseY <= sticker.y &&
         mouseY >= sticker.y - sticker.size
       ){
+
         selectedItem = sticker;
+
+        offsetX = mouseX - sticker.x;
+        offsetY = mouseY - sticker.y;
+
         dragging = true;
       }
     });
@@ -258,14 +311,15 @@ window.onload = () => {
 
     if(dragging && selectedItem){
 
-      selectedItem.x = e.offsetX;
-      selectedItem.y = e.offsetY;
+      selectedItem.x = e.offsetX - offsetX;
+      selectedItem.y = e.offsetY - offsetY;
 
       draw();
     }
   });
 
   canvas.addEventListener("mouseup", () => {
+
     dragging = false;
   });
 
