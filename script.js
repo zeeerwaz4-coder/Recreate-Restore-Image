@@ -84,6 +84,19 @@ window.onload = () => {
       draw();
     }
   };
+  // 🔥 RESTORE IMAGE OBJECTS
+
+  function redrawImages(){
+
+    images.forEach(layer => {
+
+      const img = new Image();
+
+      img.src = layer.img.src;
+
+      layer.img = img;
+    });
+  }
 
   // 🔥 REDO
 
