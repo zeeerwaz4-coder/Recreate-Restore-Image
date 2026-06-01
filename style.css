@@ -125,3 +125,7 @@ canvas{
   display:block;
   margin-top:10px;
 }
+.tools-panel hr{
+  width:100%;
+  border:1px solid #333;
+}
