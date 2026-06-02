@@ -14,24 +14,29 @@ window.onload = () => {
   const textInput = document.getElementById("textInput");
   const stickerSelect = document.getElementById("stickerSelect");
 
+  // =====================
+  // DATA
+  // =====================
   let images = [];
   let texts = [];
   let stickers = [];
-  let snap = 10;
 
+  let selectedItem = null;
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  // SETTINGS
   let brightnessValue = 1;
   let colorOn = false;
   let frameOn = false;
 
-  let selectedItem = null;
-  let dragging = false;
-
-  let offsetX = 0;
-  let offsetY = 0;
-
-  // HISTORY (ONLY ONCE)
+  // HISTORY
   let history = [];
   let redoStack = [];
+
+  // SNAP
+  let snap = 10;
 
   // CROP
   let cropMode = false;
@@ -40,71 +45,84 @@ window.onload = () => {
   let cropEndX = 0;
   let cropEndY = 0;
 
+  // =====================
+  // UTIL
+  // =====================
   function showLoading() {
     loading.style.display = "block";
-    setTimeout(() => loading.style.display = "none", 1500);
+    setTimeout(() => loading.style.display = "none", 1200);
+  }
+
+  function snapValue(v) {
+    return Math.round(v / snap) * snap;
   }
 
   function saveHistory() {
-
-    const snapshot = {
+    history.push({
       images: JSON.parse(JSON.stringify(images)),
       texts: JSON.parse(JSON.stringify(texts)),
       stickers: JSON.parse(JSON.stringify(stickers))
-    };
-
-    history.push(snapshot);
+    });
 
     if (history.length > 50) history.shift();
-
     redoStack = [];
   }
 
+  // =====================
+  // DRAW
+  // =====================
   function draw(customFilter = "") {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.filter = `brightness(${brightnessValue}) saturate(${colorOn ? 2 : 1}) ${customFilter}`;
 
-    images.forEach(layer => {
-      ctx.drawImage(layer.img, layer.x, layer.y, layer.width, layer.height);
+    images.forEach(l => {
+      ctx.drawImage(l.img, l.x, l.y, l.width, l.height);
     });
 
     if (frameOn) {
       ctx.strokeStyle = "#00ffd5";
-      ctx.lineWidth = 10;
+      ctx.lineWidth = 8;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
     }
 
-    texts.forEach(text => {
+    texts.forEach(t => {
       ctx.save();
-      ctx.translate(text.x, text.y);
-      ctx.rotate(text.rotation * Math.PI / 180);
-      ctx.font = `${text.size}px Arial`;
+      ctx.translate(t.x, t.y);
+      ctx.rotate(t.rotation * Math.PI / 180);
+      ctx.font = `${t.size}px Arial`;
       ctx.fillStyle = "white";
-      ctx.fillText(text.value, 0, 0);
+      ctx.fillText(t.value, 0, 0);
       ctx.restore();
     });
 
-    stickers.forEach(sticker => {
+    stickers.forEach(s => {
       ctx.save();
-      ctx.translate(sticker.x, sticker.y);
-      ctx.rotate(sticker.rotation * Math.PI / 180);
-      ctx.font = `${sticker.size}px Arial`;
-      ctx.fillText(sticker.value, 0, 0);
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rotation * Math.PI / 180);
+      ctx.font = `${s.size}px Arial`;
+      ctx.fillText(s.value, 0, 0);
       ctx.restore();
     });
 
-    // crop box
+    // CROPPING BOX
     if (cropMode) {
       ctx.strokeStyle = "#00ffd5";
       ctx.setLineDash([6]);
-      ctx.strokeRect(cropStartX, cropStartY, cropEndX - cropStartX, cropEndY - cropStartY);
+      ctx.strokeRect(
+        cropStartX,
+        cropStartY,
+        cropEndX - cropStartX,
+        cropEndY - cropStartY
+      );
       ctx.setLineDash([]);
     }
   }
 
-  // IMAGE UPLOAD
+  // =====================
+  // UPLOAD IMAGE
+  // =====================
   input.addEventListener("change", function () {
 
     const files = Array.from(this.files);
@@ -113,17 +131,16 @@ window.onload = () => {
 
       const reader = new FileReader();
 
-      reader.onload = function (e) {
+      reader.onload = e => {
 
         const img = new Image();
 
-        img.onload = function () {
+        img.onload = () => {
 
           canvas.width = 500;
           canvas.height = 300;
 
           images.push({
-            type: "image",
             img,
             x: 0,
             y: 0,
@@ -142,32 +159,33 @@ window.onload = () => {
     });
   });
 
+  // =====================
   // TEXT
-  window.addText = function () {
+  // =====================
+  window.addText = () => {
 
     const value = textInput.value;
 
-    if (value.trim()) {
+    if (!value.trim()) return;
 
-      texts.push({
-        type: "text",
-        value,
-        x: 50,
-        y: 50,
-        size: 40,
-        rotation: 0
-      });
+    texts.push({
+      value,
+      x: 50,
+      y: 50,
+      size: 40,
+      rotation: 0
+    });
 
-      saveHistory();
-      draw();
-    }
+    saveHistory();
+    draw();
   };
 
+  // =====================
   // STICKER
-  window.addSticker = function () {
+  // =====================
+  window.addSticker = () => {
 
     stickers.push({
-      type: "sticker",
       value: stickerSelect.value,
       x: 100,
       y: 100,
@@ -179,12 +197,14 @@ window.onload = () => {
     draw();
   };
 
+  // =====================
   // DELETE
-  window.deleteSelected = function () {
+  // =====================
+  window.deleteSelected = () => {
 
     images = images.filter(i => i !== selectedItem);
-    texts = texts.filter(i => i !== selectedItem);
-    stickers = stickers.filter(i => i !== selectedItem);
+    texts = texts.filter(t => t !== selectedItem);
+    stickers = stickers.filter(s => s !== selectedItem);
 
     selectedItem = null;
 
@@ -192,57 +212,35 @@ window.onload = () => {
     draw();
   };
 
-  // BRING FRONT
-  window.bringFront = function () {
+  // =====================
+  // BRING FRONT / BACK
+  // =====================
+  window.bringFront = () => {
     if (!selectedItem) return;
 
-    if (selectedItem.type === "image") {
+    if (selectedItem.img) {
       images = images.filter(i => i !== selectedItem);
       images.push(selectedItem);
     }
-
-    if (selectedItem.type === "text") {
-      texts = texts.filter(i => i !== selectedItem);
-      texts.push(selectedItem);
-    }
-
-    if (selectedItem.type === "sticker") {
-      stickers = stickers.filter(i => i !== selectedItem);
-      stickers.push(selectedItem);
-    }
-
-    draw();
   };
 
-  // SEND BACK
-  window.sendBack = function () {
+  window.sendBack = () => {
     if (!selectedItem) return;
 
-    if (selectedItem.type === "image") {
+    if (selectedItem.img) {
       images = images.filter(i => i !== selectedItem);
       images.unshift(selectedItem);
     }
-
-    if (selectedItem.type === "text") {
-      texts = texts.filter(i => i !== selectedItem);
-      texts.unshift(selectedItem);
-    }
-
-    if (selectedItem.type === "sticker") {
-      stickers = stickers.filter(i => i !== selectedItem);
-      stickers.unshift(selectedItem);
-    }
-
-    draw();
   };
 
-  // UNDO
-  window.undoAction = function () {
+  // =====================
+  // UNDO / REDO
+  // =====================
+  window.undoAction = () => {
 
     if (history.length > 1) {
 
-      const current = history.pop();
-      redoStack.push(current);
+      redoStack.push(history.pop());
 
       const prev = history[history.length - 1];
 
@@ -254,8 +252,7 @@ window.onload = () => {
     }
   };
 
-  // REDO
-  window.redoAction = function () {
+  window.redoAction = () => {
 
     if (redoStack.length > 0) {
 
@@ -270,7 +267,9 @@ window.onload = () => {
     }
   };
 
+  // =====================
   // CROP
+  // =====================
   window.activateCrop = () => cropMode = true;
 
   window.cancelCrop = () => {
@@ -278,7 +277,7 @@ window.onload = () => {
     draw();
   };
 
-  window.applyCrop = function () {
+  window.applyCrop = () => {
 
     const w = cropEndX - cropStartX;
     const h = cropEndY - cropStartY;
@@ -296,7 +295,6 @@ window.onload = () => {
     img.onload = () => {
 
       images = [{
-        type: "image",
         img,
         x: 0,
         y: 0,
@@ -314,14 +312,15 @@ window.onload = () => {
     };
 
     img.src = temp.toDataURL();
-  };function snapValue(value){
-  return Math.round(value / snap) * snap;
-  }
+  };
 
-  // MOUSE EVENTS
+  // =====================
+  // MOUSE
+  // =====================
   canvas.addEventListener("mousedown", e => {
-selectedItem.x = snapValue(e.offsetX - offsetX);
-selectedItem.y = snapValue(e.offsetY - offsetY);
+
+    const x = e.offsetX;
+    const y = e.offsetY;
 
     selectedItem = null;
 
@@ -335,9 +334,15 @@ selectedItem.y = snapValue(e.offsetY - offsetY);
     }
 
     for (let i = images.length - 1; i >= 0; i--) {
+
       const l = images[i];
 
-      if (x > l.x && x < l.x + l.width && y > l.y && y < l.y + l.height) {
+      if (
+        x > l.x &&
+        x < l.x + l.width &&
+        y > l.y &&
+        y < l.y + l.height
+      ) {
         selectedItem = l;
         offsetX = x - l.x;
         offsetY = y - l.y;
@@ -349,20 +354,35 @@ selectedItem.y = snapValue(e.offsetY - offsetY);
 
   canvas.addEventListener("mousemove", e => {
 
+    const x = e.offsetX;
+    const y = e.offsetY;
+
     if (cropMode && dragging) {
-      cropEndX = e.offsetX;
-      cropEndY = e.offsetY;
+      cropEndX = x;
+      cropEndY = y;
       draw();
       return;
     }
 
     if (dragging && selectedItem) {
-      selectedItem.x = e.offsetX - offsetX;
-      selectedItem.y = e.offsetY - offsetY;
+      selectedItem.x = snapValue(x - offsetX);
+      selectedItem.y = snapValue(y - offsetY);
       draw();
     }
   });
 
   canvas.addEventListener("mouseup", () => dragging = false);
+
+  // =====================
+  // AI ASSISTANT
+  // =====================
+  aiAssistant.onclick = () => {
+
+    const t = new SpeechSynthesisUtterance(
+      "Hello. I am your AI restoration assistant."
+    );
+
+    window.speechSynthesis.speak(t);
+  };
 
 };
