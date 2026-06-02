@@ -20,7 +20,7 @@ window.onload = () => {
   let images = [];
   let texts = [];
   let stickers = [];
-
+  let highlightBox = null;
   let selectedItem = null;
   let dragging = false;
   let offsetX = 0;
@@ -37,6 +37,127 @@ window.onload = () => {
 
   // SNAP
   let snap = 10;
+  // =====================
+// SNAP SYSTEM
+// =====================
+function snapValue(value) {
+  return Math.round(value / snap) * snap;
+}
+
+// =====================
+// MOUSE STATE
+// =====================
+let selectedItem = null;
+let dragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+// =====================
+// MOUSE DOWN
+// =====================
+canvas.addEventListener("mousedown", (e) => {
+
+  const x = e.offsetX;
+  const y = e.offsetY;
+
+  selectedItem = null;
+
+  // ===== CROP START =====
+  if (cropMode) {
+    cropStartX = x;
+    cropStartY = y;
+    cropEndX = x;
+    cropEndY = y;
+    dragging = true;
+    return;
+  }
+
+  // ===== SELECT IMAGE =====
+  for (let i = images.length - 1; i >= 0; i--) {
+    const l = images[i];
+
+    if (
+      x > l.x &&
+      x < l.x + l.width &&
+      y > l.y &&
+      y < l.y + l.height
+    ) {
+      selectedItem = l;
+      offsetX = x - l.x;
+      offsetY = y - l.y;
+      dragging = true;
+      return;
+    }
+  }
+
+  // ===== SELECT TEXT =====
+  for (let t of texts) {
+    const width = ctx.measureText(t.value).width;
+
+    if (
+      x > t.x &&
+      x < t.x + width &&
+      y < t.y &&
+      y > t.y - t.size
+    ) {
+      selectedItem = t;
+      offsetX = x - t.x;
+      offsetY = y - t.y;
+      dragging = true;
+      return;
+    }
+  }
+
+  // ===== SELECT STICKERS =====
+  for (let s of stickers) {
+
+    if (
+      x > s.x &&
+      x < s.x + s.size &&
+      y < s.y &&
+      y > s.y - s.size
+    ) {
+      selectedItem = s;
+      offsetX = x - s.x;
+      offsetY = y - s.y;
+      dragging = true;
+      return;
+    }
+  }
+});
+
+// =====================
+// MOUSE MOVE
+// =====================
+canvas.addEventListener("mousemove", (e) => {
+
+  const x = e.offsetX;
+  const y = e.offsetY;
+
+  // ===== CROPPING =====
+  if (cropMode && dragging) {
+    cropEndX = x;
+    cropEndY = y;
+    draw();
+    return;
+  }
+
+  // ===== DRAG OBJECT =====
+  if (dragging && selectedItem) {
+
+    selectedItem.x = snapValue(x - offsetX);
+    selectedItem.y = snapValue(y - offsetY);
+
+    draw();
+  }
+});
+
+// =====================
+// MOUSE UP
+// =====================
+canvas.addEventListener("mouseup", () => {
+  dragging = false;
+});
 
   // CROP
   let cropMode = false;
@@ -105,6 +226,21 @@ window.onload = () => {
       ctx.fillText(s.value, 0, 0);
       ctx.restore();
     });
+    if (selectedItem) {
+
+  let x = selectedItem.x;
+  let y = selectedItem.y;
+  let w = selectedItem.width || selectedItem.size || 50;
+  let h = selectedItem.height || selectedItem.size || 50;
+
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 3]);
+
+  ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+
+  ctx.setLineDash([]);
+                 }
 
     // CROPPING BOX
     if (cropMode) {
