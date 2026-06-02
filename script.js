@@ -33,6 +33,15 @@ window.onload = () => {
 
   let history = [];
   let redoStack = [];
+  // 🔥 CROP SYSTEM
+
+  let cropMode = false;
+
+  let cropStartX = 0;
+  let cropStartY = 0;
+
+  let cropEndX = 0;
+  let cropEndY = 0;
 
   let offsetX = 0;
   let offsetY = 0;
