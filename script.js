@@ -17,6 +17,7 @@ window.onload = () => {
   let images = [];
   let texts = [];
   let stickers = [];
+  let snap = 10;
 
   let brightnessValue = 1;
   let colorOn = false;
@@ -313,13 +314,14 @@ window.onload = () => {
     };
 
     img.src = temp.toDataURL();
-  };
+  };function snapValue(value){
+  return Math.round(value / snap) * snap;
+  }
 
   // MOUSE EVENTS
   canvas.addEventListener("mousedown", e => {
-
-    const x = e.offsetX;
-    const y = e.offsetY;
+selectedItem.x = snapValue(e.offsetX - offsetX);
+selectedItem.y = snapValue(e.offsetY - offsetY);
 
     selectedItem = null;
 
