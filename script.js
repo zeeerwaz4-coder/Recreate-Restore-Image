@@ -29,6 +29,8 @@ window.onload = () => {
 
   let selectedItem = null;
   let dragging = false;
+  let history = [];
+  let redoStack = [];
   // 🔥 HISTORY SYSTEM
 
   let history = [];
@@ -751,6 +753,37 @@ window.onload = () => {
 
     draw();
   };
+  window.undoAction = function(){
+
+  if(history.length > 1){
+
+    const current = history.pop();
+    redoStack.push(current);
+
+    const previous = history[history.length - 1];
+
+    images = JSON.parse(JSON.stringify(previous.images));
+    texts = JSON.parse(JSON.stringify(previous.texts));
+    stickers = JSON.parse(JSON.stringify(previous.stickers));
+
+    draw();
+  }
+};
+
+window.redoAction = function(){
+
+  if(redoStack.length > 0){
+
+    const restored = redoStack.pop();
+    history.push(restored);
+
+    images = JSON.parse(JSON.stringify(restored.images));
+    texts = JSON.parse(JSON.stringify(restored.texts));
+    stickers = JSON.parse(JSON.stringify(restored.stickers));
+
+    draw();
+  }
+};
 
   // AI assistant
 
