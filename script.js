@@ -737,6 +737,20 @@ window.onload = () => {
 
     croppedImage.src = tempCanvas.toDataURL();
   };
+  // 🔥 CANCEL CROP
+
+  window.cancelCrop = function(){
+
+    cropMode = false;
+
+    cropStartX = 0;
+    cropStartY = 0;
+
+    cropEndX = 0;
+    cropEndY = 0;
+
+    draw();
+  };
 
   // AI assistant
 
