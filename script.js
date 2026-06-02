@@ -1,11 +1,7 @@
 window.onload = () => {
 
-  const speech = new SpeechSynthesisUtterance(
-    "Welcome to Recreate and Restore"
-  );
-
+  const speech = new SpeechSynthesisUtterance("Welcome to Recreate and Restore");
   speech.lang = "en-US";
-
   window.speechSynthesis.speak(speech);
 
   const input = document.getElementById("imageUpload");
@@ -19,46 +15,36 @@ window.onload = () => {
   const stickerSelect = document.getElementById("stickerSelect");
 
   let images = [];
+  let texts = [];
+  let stickers = [];
 
   let brightnessValue = 1;
   let colorOn = false;
   let frameOn = false;
 
-  let texts = [];
-  let stickers = [];
-
   let selectedItem = null;
   let dragging = false;
-  let history = [];
-  let redoStack = [];
-  // 🔥 HISTORY SYSTEM
-
-  let history = [];
-  let redoStack = [];
-  // 🔥 CROP SYSTEM
-
-  let cropMode = false;
-
-  let cropStartX = 0;
-  let cropStartY = 0;
-
-  let cropEndX = 0;
-  let cropEndY = 0;
 
   let offsetX = 0;
   let offsetY = 0;
 
-  function showLoading(){
+  // HISTORY (ONLY ONCE)
+  let history = [];
+  let redoStack = [];
 
+  // CROP
+  let cropMode = false;
+  let cropStartX = 0;
+  let cropStartY = 0;
+  let cropEndX = 0;
+  let cropEndY = 0;
+
+  function showLoading() {
     loading.style.display = "block";
+    setTimeout(() => loading.style.display = "none", 1500);
+  }
 
-    setTimeout(() => {
-      loading.style.display = "none";
-    },1500);
-  } 
-  // 🔥 SAVE HISTORY
-
-  function saveHistory(){
+  function saveHistory() {
 
     const snapshot = {
       images: JSON.parse(JSON.stringify(images)),
@@ -68,134 +54,57 @@ window.onload = () => {
 
     history.push(snapshot);
 
-    if(history.length > 50){
-      history.shift();
-    }
+    if (history.length > 50) history.shift();
 
     redoStack = [];
   }
-  // 🔥 UNDO
 
-  window.undoAction = function(){
+  function draw(customFilter = "") {
 
-    if(history.length > 1){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const current = history.pop();
-
-      redoStack.push(current);
-
-      const previous = history[history.length - 1];
-
-      images = JSON.parse(JSON.stringify(previous.images));
-      texts = JSON.parse(JSON.stringify(previous.texts));
-      stickers = JSON.parse(JSON.stringify(previous.stickers));
-
-      redrawImages();
-
-      draw();
-    }
-  };
-  // 🔥 RESTORE IMAGE OBJECTS
-
-  function redrawImages(){
+    ctx.filter = `brightness(${brightnessValue}) saturate(${colorOn ? 2 : 1}) ${customFilter}`;
 
     images.forEach(layer => {
-
-      const img = new Image();
-
-      img.src = layer.img.src;
-
-      layer.img = img;
-    });
-  }
-
-  // 🔥 REDO
-
-  window.redoAction = function(){
-
-    if(redoStack.length > 0){
-
-      const restored = redoStack.pop();
-
-      history.push(restored);
-
-      images = JSON.parse(JSON.stringify(restored.images));
-      texts = JSON.parse(JSON.stringify(restored.texts));
-      stickers = JSON.parse(JSON.stringify(restored.stickers));
-
-      redrawImages();
-
-      draw();
-    }
-  };
-
-  function draw(customFilter = ""){
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    ctx.filter = `
-      brightness(${brightnessValue})
-      saturate(${colorOn ? 2 : 1})
-      ${customFilter}
-    `;
-
-    // 🔥 DRAW IMAGE LAYERS
-    images.forEach(layer => {
-
-      ctx.drawImage(
-        layer.img,
-        layer.x,
-        layer.y,
-        layer.width,
-        layer.height
-      );
+      ctx.drawImage(layer.img, layer.x, layer.y, layer.width, layer.height);
     });
 
-    // frame
-    if(frameOn){
+    if (frameOn) {
       ctx.strokeStyle = "#00ffd5";
       ctx.lineWidth = 10;
-      ctx.strokeRect(0,0,canvas.width,canvas.height);
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
     }
 
-    // TEXTS
     texts.forEach(text => {
-
       ctx.save();
-
-      ctx.translate(text.x,text.y);
-
+      ctx.translate(text.x, text.y);
       ctx.rotate(text.rotation * Math.PI / 180);
-
       ctx.font = `${text.size}px Arial`;
-
       ctx.fillStyle = "white";
-
-      ctx.fillText(text.value,0,0);
-
+      ctx.fillText(text.value, 0, 0);
       ctx.restore();
     });
 
-    // STICKERS
     stickers.forEach(sticker => {
-
       ctx.save();
-
-      ctx.translate(sticker.x,sticker.y);
-
+      ctx.translate(sticker.x, sticker.y);
       ctx.rotate(sticker.rotation * Math.PI / 180);
-
       ctx.font = `${sticker.size}px Arial`;
-
-      ctx.fillText(sticker.value,0,0);
-
+      ctx.fillText(sticker.value, 0, 0);
       ctx.restore();
     });
+
+    // crop box
+    if (cropMode) {
+      ctx.strokeStyle = "#00ffd5";
+      ctx.setLineDash([6]);
+      ctx.strokeRect(cropStartX, cropStartY, cropEndX - cropStartX, cropEndY - cropStartY);
+      ctx.setLineDash([]);
+    }
   }
 
-  // LOAD IMAGES
-
-  input.addEventListener("change", function(){
+  // IMAGE UPLOAD
+  input.addEventListener("change", function () {
 
     const files = Array.from(this.files);
 
@@ -203,24 +112,25 @@ window.onload = () => {
 
       const reader = new FileReader();
 
-      reader.onload = function(e){
+      reader.onload = function (e) {
 
         const img = new Image();
 
-        img.onload = function(){
+        img.onload = function () {
 
           canvas.width = 500;
           canvas.height = 300;
 
           images.push({
-            type:"image",
-            img:img,
-            x:0,
-            y:0,
-            width:300,
-            height:200
+            type: "image",
+            img,
+            x: 0,
+            y: 0,
+            width: 300,
+            height: 200
           });
 
+          saveHistory();
           draw();
         };
 
@@ -232,568 +142,225 @@ window.onload = () => {
   });
 
   // TEXT
-
-  window.addText = function(){
+  window.addText = function () {
 
     const value = textInput.value;
 
-    if(value.trim() !== ""){
+    if (value.trim()) {
 
       texts.push({
-        type:"text",
-        value:value,
-        x:50,
-        y:50,
-        size:40,
-        rotation:0
+        type: "text",
+        value,
+        x: 50,
+        y: 50,
+        size: 40,
+        rotation: 0
       });
 
+      saveHistory();
       draw();
-
-      textInput.value = "";
     }
   };
 
-  // STICKERS
-
-  window.addSticker = function(){
+  // STICKER
+  window.addSticker = function () {
 
     stickers.push({
-      type:"sticker",
-      value:stickerSelect.value,
-      x:100,
-      y:100,
-      size:50,
-      rotation:0
+      type: "sticker",
+      value: stickerSelect.value,
+      x: 100,
+      y: 100,
+      size: 50,
+      rotation: 0
     });
 
+    saveHistory();
     draw();
-  };
-
-  // RESIZE
-
-  window.resizeObject = function(size){
-
-    if(selectedItem){
-
-      if(selectedItem.type === "image"){
-
-        selectedItem.width = size * 5;
-        selectedItem.height = size * 3;
-      }
-      else{
-        selectedItem.size = size;
-      }
-
-      draw();
-    }
-  };
-
-  // ROTATE
-
-  window.rotateObject = function(angle){
-
-    if(selectedItem && selectedItem.type !== "image"){
-
-      selectedItem.rotation = angle;
-
-      draw();
-    }
   };
 
   // DELETE
+  window.deleteSelected = function () {
 
-  window.deleteSelected = function(){
-    // 🔥 BRING TO FRONT
-
-  window.bringFront = function(){
-
-    if(selectedItem){
-
-      // IMAGE
-      if(selectedItem.type === "image"){
-
-        images = images.filter(
-          item => item !== selectedItem
-        );
-
-        images.push(selectedItem);
-      }
-
-      // TEXT
-      if(selectedItem.type === "text"){
-
-        texts = texts.filter(
-          item => item !== selectedItem
-        );
-
-        texts.push(selectedItem);
-      }
-
-      // STICKER
-      if(selectedItem.type === "sticker"){
-
-        stickers = stickers.filter(
-          item => item !== selectedItem
-        );
-
-        stickers.push(selectedItem);
-      }
-
-      draw();
-    }
-  };
-
-  // 🔥 SEND TO BACK
-
-  window.sendBack = function(){
-
-    if(selectedItem){
-
-      // IMAGE
-      if(selectedItem.type === "image"){
-
-        images = images.filter(
-          item => item !== selectedItem
-        );
-
-        images.unshift(selectedItem);
-      }
-
-      // TEXT
-      if(selectedItem.type === "text"){
-
-        texts = texts.filter(
-          item => item !== selectedItem
-        );
-
-        texts.unshift(selectedItem);
-      }
-
-      // STICKER
-      if(selectedItem.type === "sticker"){
-
-        stickers = stickers.filter(
-          item => item !== selectedItem
-        );
-
-        stickers.unshift(selectedItem);
-      }
-
-      draw();
-    }
-  };
-
-    if(selectedItem){
-
-      images = images.filter(item => item !== selectedItem);
-
-      texts = texts.filter(item => item !== selectedItem);
-
-      stickers = stickers.filter(item => item !== selectedItem);
-
-      selectedItem = null;
-
-      draw();
-    }
-  };// 🔥 START CROP
-
-    if(cropMode){
-
-      cropStartX = e.offsetX;
-      cropStartY = e.offsetY;
-
-      cropEndX = e.offsetX;
-      cropEndY = e.offsetY;
-
-      dragging = true;
-
-      return;
-          }
-
-  // 🔥 DRAG SYSTEM
-
-  canvas.addEventListener("mousedown", (e) => {
-
-    const mouseX = e.offsetX;
-    const mouseY = e.offsetY;
+    images = images.filter(i => i !== selectedItem);
+    texts = texts.filter(i => i !== selectedItem);
+    stickers = stickers.filter(i => i !== selectedItem);
 
     selectedItem = null;
 
-    // CHECK IMAGE LAYERS
-    for(let i = images.length - 1; i >= 0; i--){
+    saveHistory();
+    draw();
+  };
 
-      const layer = images[i];
+  // BRING FRONT
+  window.bringFront = function () {
+    if (!selectedItem) return;
 
-      if(
-        mouseX >= layer.x &&
-        mouseX <= layer.x + layer.width &&
-        mouseY >= layer.y &&
-        mouseY <= layer.y + layer.height
-      ){
+    if (selectedItem.type === "image") {
+      images = images.filter(i => i !== selectedItem);
+      images.push(selectedItem);
+    }
 
-        selectedItem = layer;
+    if (selectedItem.type === "text") {
+      texts = texts.filter(i => i !== selectedItem);
+      texts.push(selectedItem);
+    }
 
-        offsetX = mouseX - layer.x;
-        offsetY = mouseY - layer.y;
+    if (selectedItem.type === "sticker") {
+      stickers = stickers.filter(i => i !== selectedItem);
+      stickers.push(selectedItem);
+    }
 
+    draw();
+  };
+
+  // SEND BACK
+  window.sendBack = function () {
+    if (!selectedItem) return;
+
+    if (selectedItem.type === "image") {
+      images = images.filter(i => i !== selectedItem);
+      images.unshift(selectedItem);
+    }
+
+    if (selectedItem.type === "text") {
+      texts = texts.filter(i => i !== selectedItem);
+      texts.unshift(selectedItem);
+    }
+
+    if (selectedItem.type === "sticker") {
+      stickers = stickers.filter(i => i !== selectedItem);
+      stickers.unshift(selectedItem);
+    }
+
+    draw();
+  };
+
+  // UNDO
+  window.undoAction = function () {
+
+    if (history.length > 1) {
+
+      const current = history.pop();
+      redoStack.push(current);
+
+      const prev = history[history.length - 1];
+
+      images = JSON.parse(JSON.stringify(prev.images));
+      texts = JSON.parse(JSON.stringify(prev.texts));
+      stickers = JSON.parse(JSON.stringify(prev.stickers));
+
+      draw();
+    }
+  };
+
+  // REDO
+  window.redoAction = function () {
+
+    if (redoStack.length > 0) {
+
+      const state = redoStack.pop();
+      history.push(state);
+
+      images = JSON.parse(JSON.stringify(state.images));
+      texts = JSON.parse(JSON.stringify(state.texts));
+      stickers = JSON.parse(JSON.stringify(state.stickers));
+
+      draw();
+    }
+  };
+
+  // CROP
+  window.activateCrop = () => cropMode = true;
+
+  window.cancelCrop = () => {
+    cropMode = false;
+    draw();
+  };
+
+  window.applyCrop = function () {
+
+    const w = cropEndX - cropStartX;
+    const h = cropEndY - cropStartY;
+
+    const temp = document.createElement("canvas");
+    const tctx = temp.getContext("2d");
+
+    temp.width = w;
+    temp.height = h;
+
+    tctx.drawImage(canvas, cropStartX, cropStartY, w, h, 0, 0, w, h);
+
+    const img = new Image();
+
+    img.onload = () => {
+
+      images = [{
+        type: "image",
+        img,
+        x: 0,
+        y: 0,
+        width: w,
+        height: h
+      }];
+
+      canvas.width = w;
+      canvas.height = h;
+
+      cropMode = false;
+
+      saveHistory();
+      draw();
+    };
+
+    img.src = temp.toDataURL();
+  };
+
+  // MOUSE EVENTS
+  canvas.addEventListener("mousedown", e => {
+
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    selectedItem = null;
+
+    if (cropMode) {
+      cropStartX = x;
+      cropStartY = y;
+      cropEndX = x;
+      cropEndY = y;
+      dragging = true;
+      return;
+    }
+
+    for (let i = images.length - 1; i >= 0; i--) {
+      const l = images[i];
+
+      if (x > l.x && x < l.x + l.width && y > l.y && y < l.y + l.height) {
+        selectedItem = l;
+        offsetX = x - l.x;
+        offsetY = y - l.y;
         dragging = true;
-
         return;
       }
     }
-
-    // CHECK TEXTS
-    texts.forEach(text => {
-
-      ctx.font = `${text.size}px Arial`;
-
-      const width = ctx.measureText(text.value).width;
-
-      if(
-        mouseX >= text.x &&
-        mouseX <= text.x + width &&
-        mouseY <= text.y &&
-        mouseY >= text.y - text.size
-      ){
-
-        selectedItem = text;
-
-        offsetX = mouseX - text.x;
-        offsetY = mouseY - text.y;
-
-        dragging = true;
-      }
-    });
-
-    // CHECK STICKERS
-    stickers.forEach(sticker => {
-
-      if(
-        mouseX >= sticker.x &&
-        mouseX <= sticker.x + sticker.size &&
-        mouseY <= sticker.y &&
-        mouseY >= sticker.y - sticker.size
-      ){
-
-        selectedItem = sticker;
-
-        offsetX = mouseX - sticker.x;
-        offsetY = mouseY - sticker.y;
-
-        dragging = true;
-      }
-    });
   });
-  // 🔥 UPDATE CROP BOX
 
-    if(cropMode && dragging){
+  canvas.addEventListener("mousemove", e => {
 
+    if (cropMode && dragging) {
       cropEndX = e.offsetX;
       cropEndY = e.offsetY;
-
       draw();
-
       return;
-      }
+    }
 
-  canvas.addEventListener("mousemove", (e) => {
-
-    if(dragging && selectedItem){
-
+    if (dragging && selectedItem) {
       selectedItem.x = e.offsetX - offsetX;
       selectedItem.y = e.offsetY - offsetY;
-
       draw();
     }
   });
 
-  canvas.addEventListener("mouseup", () => {
-
-    dragging = false;
-    if(cropMode){
-
-      dragging = false;
-    }
-  });
-
-  // TOOLS
-
-  window.instaColor = function(){
-    showLoading();
-    colorOn = true;
-    draw();
-  };
-
-  window.setBrightness = function(value){
-    showLoading();
-    brightnessValue = value;
-    draw();
-  };
-
-  window.addFrame = function(){
-    showLoading();
-    frameOn = true;
-    draw();
-  };
-
-  window.resetImage = function(){
-
-    showLoading();
-
-    brightnessValue = 1;
-    colorOn = false;
-    frameOn = false;
-
-    images = [];
-    texts = [];
-    stickers = [];
-
-    draw();
-  };
-
-  window.vintage = function(){
-    showLoading();
-    draw("sepia(1)");
-  };
-
-  window.blurImg = function(){
-    showLoading();
-    draw("blur(3px)");
-  };
-
-  window.sharpen = function(){
-    showLoading();
-    draw("contrast(1.5)");
-  };
-
-  window.removeBackground = function(){
-
-    showLoading();
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    const gradient = ctx.createLinearGradient(0,0,500,300);
-
-    gradient.addColorStop(0,"#111");
-    gradient.addColorStop(1,"#00ffd5");
-
-    ctx.fillStyle = gradient;
-
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    draw();
-  };
-
-  window.enhanceImage = function(){
-    showLoading();
-    draw("contrast(1.4) saturate(1.5)");
-  };
-  // 🔥 DRAW CROP BOX
-
-    if(cropMode){
-
-      ctx.strokeStyle = "#00ffd5";
-
-      ctx.lineWidth = 2;
-
-      ctx.setLineDash([6]);
-
-      ctx.strokeRect(
-        cropStartX,
-        cropStartY,
-        cropEndX - cropStartX,
-        cropEndY - cropStartY
-      );
-
-      ctx.setLineDash([]);
-    }
-  // 🔥 HD EXPORT
-
-  window.exportHD = function(){
-
-    const link = document.createElement("a");
-
-    link.download = "recreate_restore_hd.png";
-
-    link.href = canvas.toDataURL(
-      "image/png",
-      1.0
-    );
-
-    link.click();
-    // 🔥 ACTIVATE CROP
-
-  window.activateCrop = function(){
-
-    cropMode = true;
-  };
-
-  // 🔥 APPLY CROP
-
-  window.applyCrop = function(){
-
-    if(images.length === 0) return;
-
-    const cropWidth = cropEndX - cropStartX;
-    const cropHeight = cropEndY - cropStartY;
-
-    const tempCanvas = document.createElement("canvas");
-
-    const tempCtx = tempCanvas.getContext("2d");
-
-    tempCanvas.width = cropWidth;
-    tempCanvas.height = cropHeight;
-
-    tempCtx.drawImage(
-      canvas,
-      cropStartX,
-      cropStartY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      cropWidth,
-      cropHeight
-    );
-
-    const croppedImage = new Image();
-
-    croppedImage.onload = function(){
-
-      images = [{
-        type:"image",
-        img:croppedImage,
-        x:0,
-        y:0,
-        width:cropWidth,
-        height:cropHeight
-      }];
-
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
-
-      cropMode = false;
-
-      draw();
-    };
-
-    croppedImage.src = tempCanvas.toDataURL();
-  };
-  };// 🔥 ACTIVATE CROP
-
-  window.activateCrop = function(){
-
-    cropMode = true;
-  };
-
-  // 🔥 APPLY CROP
-
-  window.applyCrop = function(){
-
-    if(images.length === 0) return;
-
-    const cropWidth = cropEndX - cropStartX;
-    const cropHeight = cropEndY - cropStartY;
-
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-
-    tempCanvas.width = cropWidth;
-    tempCanvas.height = cropHeight;
-
-    tempCtx.drawImage(
-      canvas,
-      cropStartX,
-      cropStartY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      cropWidth,
-      cropHeight
-    );
-
-    const croppedImage = new Image();
-
-    croppedImage.onload = function(){
-
-      images = [{
-        type:"image",
-        img:croppedImage,
-        x:0,
-        y:0,
-        width:cropWidth,
-        height:cropHeight
-      }];
-
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
-
-      cropMode = false;
-
-      draw();
-
-      saveHistory();
-    };
-
-    croppedImage.src = tempCanvas.toDataURL();
-  };
-  // 🔥 CANCEL CROP
-
-  window.cancelCrop = function(){
-
-    cropMode = false;
-
-    cropStartX = 0;
-    cropStartY = 0;
-
-    cropEndX = 0;
-    cropEndY = 0;
-
-    draw();
-  };
-  window.undoAction = function(){
-
-  if(history.length > 1){
-
-    const current = history.pop();
-    redoStack.push(current);
-
-    const previous = history[history.length - 1];
-
-    images = JSON.parse(JSON.stringify(previous.images));
-    texts = JSON.parse(JSON.stringify(previous.texts));
-    stickers = JSON.parse(JSON.stringify(previous.stickers));
-
-    draw();
-  }
-};
-
-window.redoAction = function(){
-
-  if(redoStack.length > 0){
-
-    const restored = redoStack.pop();
-    history.push(restored);
-
-    images = JSON.parse(JSON.stringify(restored.images));
-    texts = JSON.parse(JSON.stringify(restored.texts));
-    stickers = JSON.parse(JSON.stringify(restored.stickers));
-
-    draw();
-  }
-};
-
-  // AI assistant
-
-  aiAssistant.onclick = () => {
-
-    const text = new SpeechSynthesisUtterance(
-      "Hello. I am your AI restoration assistant."
-    );
-
-    window.speechSynthesis.speak(text);
-  };
+  canvas.addEventListener("mouseup", () => dragging = false);
 
 };
