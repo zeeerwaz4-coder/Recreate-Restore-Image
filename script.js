@@ -394,7 +394,20 @@ window.onload = () => {
 
       draw();
     }
-  };
+  };// 🔥 START CROP
+
+    if(cropMode){
+
+      cropStartX = e.offsetX;
+      cropStartY = e.offsetY;
+
+      cropEndX = e.offsetX;
+      cropEndY = e.offsetY;
+
+      dragging = true;
+
+      return;
+          }
 
   // 🔥 DRAG SYSTEM
 
@@ -470,6 +483,17 @@ window.onload = () => {
       }
     });
   });
+  // 🔥 UPDATE CROP BOX
+
+    if(cropMode && dragging){
+
+      cropEndX = e.offsetX;
+      cropEndY = e.offsetY;
+
+      draw();
+
+      return;
+      }
 
   canvas.addEventListener("mousemove", (e) => {
 
@@ -485,6 +509,10 @@ window.onload = () => {
   canvas.addEventListener("mouseup", () => {
 
     dragging = false;
+    if(cropMode){
+
+      dragging = false;
+    }
   });
 
   // TOOLS
@@ -559,6 +587,25 @@ window.onload = () => {
     showLoading();
     draw("contrast(1.4) saturate(1.5)");
   };
+  // 🔥 DRAW CROP BOX
+
+    if(cropMode){
+
+      ctx.strokeStyle = "#00ffd5";
+
+      ctx.lineWidth = 2;
+
+      ctx.setLineDash([6]);
+
+      ctx.strokeRect(
+        cropStartX,
+        cropStartY,
+        cropEndX - cropStartX,
+        cropEndY - cropStartY
+      );
+
+      ctx.setLineDash([]);
+    }
   // 🔥 HD EXPORT
 
   window.exportHD = function(){
@@ -573,6 +620,64 @@ window.onload = () => {
     );
 
     link.click();
+  };// 🔥 ACTIVATE CROP
+
+  window.activateCrop = function(){
+
+    cropMode = true;
+  };
+
+  // 🔥 APPLY CROP
+
+  window.applyCrop = function(){
+
+    if(images.length === 0) return;
+
+    const cropWidth = cropEndX - cropStartX;
+    const cropHeight = cropEndY - cropStartY;
+
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    tempCanvas.width = cropWidth;
+    tempCanvas.height = cropHeight;
+
+    tempCtx.drawImage(
+      canvas,
+      cropStartX,
+      cropStartY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      cropWidth,
+      cropHeight
+    );
+
+    const croppedImage = new Image();
+
+    croppedImage.onload = function(){
+
+      images = [{
+        type:"image",
+        img:croppedImage,
+        x:0,
+        y:0,
+        width:cropWidth,
+        height:cropHeight
+      }];
+
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+
+      cropMode = false;
+
+      draw();
+
+      saveHistory();
+    };
+
+    croppedImage.src = tempCanvas.toDataURL();
   };
 
   // AI assistant
