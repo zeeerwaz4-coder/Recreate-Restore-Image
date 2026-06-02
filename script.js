@@ -550,6 +550,21 @@ window.onload = () => {
     showLoading();
     draw("contrast(1.4) saturate(1.5)");
   };
+  // 🔥 HD EXPORT
+
+  window.exportHD = function(){
+
+    const link = document.createElement("a");
+
+    link.download = "recreate_restore_hd.png";
+
+    link.href = canvas.toDataURL(
+      "image/png",
+      1.0
+    );
+
+    link.click();
+  };
 
   // AI assistant
 
