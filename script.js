@@ -620,6 +620,64 @@ window.onload = () => {
     );
 
     link.click();
+    // 🔥 ACTIVATE CROP
+
+  window.activateCrop = function(){
+
+    cropMode = true;
+  };
+
+  // 🔥 APPLY CROP
+
+  window.applyCrop = function(){
+
+    if(images.length === 0) return;
+
+    const cropWidth = cropEndX - cropStartX;
+    const cropHeight = cropEndY - cropStartY;
+
+    const tempCanvas = document.createElement("canvas");
+
+    const tempCtx = tempCanvas.getContext("2d");
+
+    tempCanvas.width = cropWidth;
+    tempCanvas.height = cropHeight;
+
+    tempCtx.drawImage(
+      canvas,
+      cropStartX,
+      cropStartY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      cropWidth,
+      cropHeight
+    );
+
+    const croppedImage = new Image();
+
+    croppedImage.onload = function(){
+
+      images = [{
+        type:"image",
+        img:croppedImage,
+        x:0,
+        y:0,
+        width:cropWidth,
+        height:cropHeight
+      }];
+
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+
+      cropMode = false;
+
+      draw();
+    };
+
+    croppedImage.src = tempCanvas.toDataURL();
+  };
   };// 🔥 ACTIVATE CROP
 
   window.activateCrop = function(){
