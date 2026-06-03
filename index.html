@@ -1,159 +1,119 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recreate and Restore</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-  <!-- AI Greeting -->
-  <div class="ai-greeting" id="aiGreeting">
-    Welcome to Recreate and Restore.
-    Upload an image and describe what you want to improve.
-  </div>
-
-  <!-- Header -->
-  <header>
-
-    <!-- Left Logo -->
-    <div class="logo">
-      RR
-    </div>
-
-    <!-- Center Title -->
+  <!-- HEADER -->
+  <header class="top-bar">
+    <div class="logo">RR</div>
     <h1>Recreate and Restore</h1>
-
   </header>
 
-  <!-- Main Layout -->
-  <div class="main-container">
+  <!-- MAIN APP LAYOUT -->
+  <div class="app">
 
-    <!-- Center Area -->
-    <div class="center-panel">
+    <!-- ================= CANVAS AREA (LEFT / CENTER) ================= -->
+    <div class="canvas-area">
 
-      <!-- Upload Box -->
       <div class="upload-box">
+
         <input type="file" id="imageUpload" multiple>
-        <p>Upload or Drop Image Here</p>
-         <canvas id="canvas"></canvas>
+
+        <canvas id="canvas"></canvas>
+
       </div>
 
-      <!-- AI Request -->
       <textarea
         class="ai-request"
+        id="aiRequest"
         placeholder="Describe what the AI should recreate or restore...">
       </textarea>
 
     </div>
 
-    <!-- Right Tools -->
+    <!-- ================= TOOLS PANEL (RIGHT SIDE) ================= -->
     <div class="tools-panel">
-      <div id="layerPanel">
-  <h3>Layers</h3>
-  <ul id="layerList"></ul>
-      </div>
+
+      <!-- STICKERS -->
       <select id="stickerSelect">
-  <option>🔥</option>
-  <option>✨</option>
-  <option>❤️</option>
-  <option>😎</option>
-  <option>🌟</option>
-  <option>👑</option>
-</select>
+        <option>🔥</option>
+        <option>✨</option>
+        <option>❤️</option>
+        <option>😎</option>
+        <option>🌟</option>
+        <option>👑</option>
+      </select>
+
+      <!-- TEXT -->
+      <input type="text" id="textInput" placeholder="Enter text">
+      <button onclick="addText()">Add Text</button>
+
+      <!-- SIZE -->
       <label>Object Size</label>
+      <input type="range" min="20" max="100" value="40"
+        oninput="resizeObject(this.value)">
 
-<input type="range"
-min="20"
-max="100"
-value="40"
-id="sizeSlider"
-oninput="resizeObject(this.value)">
-      <label>Rotate Object</label>
+      <!-- ROTATE -->
+      <label>Rotate</label>
+      <input type="range" min="-180" max="180" value="0"
+        oninput="rotateObject(this.value)">
 
-<input type="range"
-min="-180"
-max="180"
-value="0"
-id="rotateSlider"
-oninput="rotateObject(this.value)">
-      <button onclick="deleteSelected()">
-  Delete Selected
-      </button>
-      <button onclick="bringFront()">
-  Bring Front
-</button>
+      <!-- LAYER CONTROLS -->
+      <button onclick="deleteSelected()">Delete</button>
+      <button onclick="bringFront()">Bring Front</button>
+      <button onclick="sendBack()">Send Back</button>
 
-<button onclick="sendBack()">
-  Send Back
-</button>
+      <!-- STICKERS -->
+      <button onclick="addSticker()">Add Sticker</button>
 
-<button onclick="addSticker()">
-  Add Sticker
-</button>
+      <!-- EFFECTS -->
+      <button onclick="instaColor()">Insta Color</button>
+      <button onclick="addFrame()">Frame</button>
+      <button onclick="resetImage()">Reset</button>
 
-  <button onclick="instaColor()">Insta Color</button>
+      <label>Brightness</label>
+      <input type="range" min="0.5" max="2" step="0.1"
+        value="1" oninput="setBrightness(this.value)">
 
-  <label>Brightness</label>
-  <input type="range" min="0.5" max="2" step="0.1" value="1"
-         oninput="setBrightness(this.value)">
+      <button onclick="vintage()">Vintage</button>
+      <button onclick="blurImg()">Blur</button>
+      <button onclick="sharpen()">Sharpen</button>
+      <button onclick="removeBackground()">AI Background</button>
+      <button onclick="enhanceImage()">AI Enhance</button>
 
-  <label>Frame</label>
-  <button onclick="addFrame()">Add Frame</button>
+      <!-- HISTORY -->
+      <button onclick="undoAction()">Undo</button>
+      <button onclick="redoAction()">Redo</button>
 
-  <button onclick="resetImage()">Reset</button>
-  <button onclick="undo()">Undo</button>
-  <button onclick="saveImage()">Save</button>
-  <button onclick="vintage()">Vintage</button>
-  <button onclick="blurImg()">Blur</button>
-  <button onclick="sharpen()">Sharpen</button>
-  <button onclick="removeBackground()">AI Background</button>
-  <button onclick="enhanceImage()">AI Enhance</button>
-  <input type="text" id="textInput"
-placeholder="Enter text">
+      <!-- EXPORT -->
+      <button onclick="exportHD()">Export HD</button>
 
-<button onclick="addText()">
-  Add Text
-</button>
-      <button onclick="undoAction()">
-  Undo
-</button>
+      <!-- CROP -->
+      <button onclick="activateCrop()">Crop Mode</button>
+      <button onclick="applyCrop()">Apply Crop</button>
+      <button onclick="cancelCrop()">Cancel Crop</button>
 
-<button onclick="redoAction()">
-  Redo
-</button>
-      <button onclick="exportHD()">
-  Export HD
-      </button>
-      
-<button onclick="activateCrop()">
-  Crop Mode
-</button>
-
-<button onclick="applyCrop()">
-  Apply Crop
-</button>
-      <button onclick="cancelCrop()">
-  Cancel Crop
-  </button>
     </div>
 
   </div>
-  
-  <!-- Floating AI Assistant -->
-<div class="ai-assistant" id="aiAssistant">
-  🤖 AI Assistant
-</div>
 
-<!-- Loading -->
-<div class="loading" id="loading">
-  AI Processing...
-</div>
+  <!-- FLOATING AI -->
+  <div class="ai-assistant" id="aiAssistant">
+    🤖 AI Assistant
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    AI Processing...
+  </div>
 
   <script src="script.js"></script>
 
 </body>
-    </html>
+        </html>
