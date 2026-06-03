@@ -1,5 +1,5 @@
 /* =======================
-   GLOBAL SAFE RESET
+   HARD RESET (PHONE SAFE)
 ======================= */
 * {
   box-sizing: border-box;
@@ -8,32 +8,32 @@
 html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
   height: 100%;
+  overflow: hidden;
   background: #111;
-  color: white;
-  font-family: Arial, sans-serif;
-  overflow: hidden; /* prevents sideways scroll */
 }
 
 /* =======================
-   MAIN APP
+   ROOT APP = FULL SCREEN
 ======================= */
 .app {
-  display: flex;
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
 /* =======================
-   CANVAS AREA (RESPONSIVE FIX)
+   CANVAS = TOP 70%
 ======================= */
 .canvas-area {
-  flex: 1;
-  min-height: 0; /* IMPORTANT fix for mobile flex */
+  width: 100%;
+  height: 70%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   background: #1a1a1a;
   overflow: hidden;
 }
@@ -43,80 +43,37 @@ canvas {
   height: 100%;
   display: block;
   object-fit: contain;
-  background: black;
 }
 
 /* =======================
-   TOOLS PANEL
+   TOOLS = BOTTOM 30%
 ======================= */
 .tools-panel {
-  width: 240px;
-  max-width: 40vw;
-  min-width: 140px;
-  background: #151515;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px;
+  width: 100%;
+  height: 30%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  padding: 6px;
   overflow-y: auto;
-  overflow-x: hidden;
-  flex-shrink: 0;
+  background: #151515;
 }
 
 /* =======================
-   CONTROLS
+   CONTROLS (AUTO FIT)
 ======================= */
-.tools-panel button {
-  width: 100%;
-  padding: 8px;
-  font-size: 12px;
-  border: none;
-  border-radius: 6px;
-  background: #00ffd5;
-  color: black;
-  font-weight: bold;
-}
-
+.tools-panel button,
 .tools-panel input,
 .tools-panel select {
   width: 100%;
+  font-size: 11px;
   padding: 6px;
-  font-size: 12px;
-  border-radius: 6px;
   border: none;
-  background: #222;
-  color: white;
+  border-radius: 6px;
 }
 
-/* =======================
-   MOBILE FIX (IMPORTANT)
-======================= */
-@media (max-width: 768px) {
-
-  .app {
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  .canvas-area {
-    flex: 1;
-    height: auto;
-    min-height: 55vh;
-  }
-
-  .tools-panel {
-    width: 100%;
-    max-width: 100%;
-    height: 45vh;
-    flex-direction: row;
-    flex-wrap: wrap;
-    overflow-y: auto;
-  }
-
-  .tools-panel button,
-  .tools-panel input,
-  .tools-panel select {
-    width: 48%;
-    font-size: 11px;
-  }
+.tools-panel button {
+  background: #00ffd5;
+  color: black;
+  font-weight: bold;
    }
