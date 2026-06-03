@@ -1,207 +1,129 @@
-/* style.css */
-
-body{
-  margin:0;
-  padding:0;
-  background:#111;
-  color:white;
-  font-family:Arial, sans-serif;
+/* =======================
+   GLOBAL
+======================= */
+body {
+  margin: 0;
+  padding: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
 }
 
-/* AI Greeting */
-.ai-greeting{
-  text-align:center;
-  padding:12px;
-  background:#1b1b1b;
-  color:#00ffd5;
-  font-size:14px;
+/* =======================
+   APP LAYOUT (NEW SYSTEM)
+======================= */
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100%;
 }
 
-/* Header */
-header{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  padding:20px;
+/* =======================
+   CANVAS AREA (LEFT / CENTER)
+======================= */
+.canvas-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #1a1a1a;
+  position: relative;
 }
 
-/* Logo */
-.logo{
-  position:absolute;
-  left:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#00ffd5;
-  color:black;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-  font-size:20px;
+canvas {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  background: #000;
 }
 
-/* Title */
-h1{
-  margin:0;
-  font-size:38px;
-}
-
-/* Main Layout */
-.main-container{
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  gap:30px;
-  padding:30px;
-}
-
-/* Center Panel */
-.center-panel{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-/* Upload Box */
-.upload-box{
-  width:500px;
-  height:300px;
-  border:3px dashed #00ffd5;
-  border-radius:20px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  margin-bottom:20px;
-  background:#1c1c1c;
-}
-
-/* AI Request Box */
-.ai-request{
-  width:500px;
-  height:120px;
-  border:none;
-  border-radius:15px;
-  padding:15px;
-  font-size:16px;
-  background:#1c1c1c;
-  color:white;
-  resize:none;
-}
-
-/* Right Tools Panel */
-.tools-panel{
-  display:flex;
-  flex-direction:column;
-  gap:15px;
+/* =======================
+   TOOLS PANEL (RIGHT SIDE)
+======================= */
+.tools-panel {
+  width: 220px;
+  background: #151515;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  overflow-y: auto;
 }
 
 /* Buttons */
-.tools-panel button{
-  width:180px;
-  padding:15px;
-  border:none;
-  border-radius:12px;
-  background:#00ffd5;
-  color:black;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
+.tools-panel button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #00ffd5;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.tools-panel button:hover{
-  transform:scale(1.05);
-    }
-.upload-box{
-  overflow:hidden;
-  position:relative;
-  }
-canvas{
-  max-width:100%;
-  max-height:100%;
-  border-radius:15px;
-  display:block;
-  margin-top:10px;
-}
-.tools-panel hr{
-  width:100%;
-  border:1px solid #333;
-}
-/* Floating AI Assistant */
-
-.ai-assistant{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#00ffd5;
-  color:black;
-  padding:15px 20px;
-  border-radius:50px;
-  font-weight:bold;
-  cursor:pointer;
-  box-shadow:0 0 15px #00ffd5;
-  animation:float 2s infinite ease-in-out;
+.tools-panel button:hover {
+  transform: scale(1.03);
 }
 
-/* Floating effect */
-@keyframes float{
-  0%{ transform:translateY(0px); }
-  50%{ transform:translateY(-10px); }
-  100%{ transform:translateY(0px); }
-}
-
-/* Loading box */
-
-.loading{
-  position:fixed;
-  top:20px;
-  right:20px;
-  background:#111;
-  color:#00ffd5;
-  padding:12px 20px;
-  border:2px solid #00ffd5;
-  border-radius:12px;
-  display:none;
-}
-#textInput{
-  width:170px;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  outline:none;
-  background:#1c1c1c;
-  color:white;
-  }
-#stickerSelect{
-  width:180px;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:#1c1c1c;
-  color:white;
-}
-#sizeSlider{
-  width:180px;
-  }
-#rotateSlider{
-  width:180px;
-}
-#layerPanel {
-  position: absolute;
-  right: 10px;
-  top: 80px;
-  width: 180px;
-  background: #111;
+/* Inputs */
+.tools-panel input,
+.tools-panel select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background: #222;
   color: white;
+}
+
+/* =======================
+   HEADER (OPTIONAL CLEANUP)
+======================= */
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 15px;
+}
+
+.logo {
+  position: absolute;
+  left: 15px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #00ffd5;
+  color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+/* =======================
+   FLOATING AI
+======================= */
+.ai-assistant {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #00ffd5;
+  color: black;
+  padding: 12px 18px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.loading {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #111;
+  border: 2px solid #00ffd5;
   padding: 10px;
   border-radius: 10px;
-}
-
-#layerList li {
-  cursor: pointer;
-  padding: 5px;
-  margin: 3px 0;
-  background: #222;
+  display: none;
 }
