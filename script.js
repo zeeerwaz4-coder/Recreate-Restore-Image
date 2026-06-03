@@ -166,8 +166,8 @@ window.onload = () => {
 
         img.onload = () => {
 
-          canvas.width = 500;
-          canvas.height = 300;
+          canvas.width = rect.width;
+          canvas.height = rect.height;
 
           images.push({
             img,
