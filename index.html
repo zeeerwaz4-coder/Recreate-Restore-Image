@@ -117,3 +117,132 @@
 
   </body>
         </html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Restoration Hub</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #111;
+  color: white;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 12px;
+  background: #1c1c1c;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.preview {
+  width: 90%;
+  max-width: 320px;
+  height: 320px;
+  margin: 15px auto;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload {
+  text-align: center;
+  margin: 10px;
+}
+
+.tools {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  overflow-x: auto;
+  background: #000;
+  padding: 8px;
+  gap: 8px;
+}
+
+.tools button {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+}
+
+.tools button:active {
+  background: #555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">AI Restoration Hub</div>
+
+<div class="upload">
+  <input type="file" accept="image/*" onchange="loadImage(event)">
+</div>
+
+<div class="preview">
+  <img id="imgPreview">
+</div>
+
+<div class="tools">
+  <button onclick="runTool('beauty')">Beauty</button>
+  <button onclick="runTool('rejuvenate')">Rejuvenate</button>
+  <button onclick="runTool('brighten')">Brighten</button>
+  <button onclick="runTool('restore')">Restore</button>
+</div>
+
+<script>
+function loadImage(event) {
+  const img = document.getElementById('imgPreview');
+  img.src = URL.createObjectURL(event.target.files[0]);
+}
+
+function runTool(type) {
+  const img = document.getElementById('imgPreview');
+
+  if (!img.src) {
+    alert("Upload image first");
+    return;
+  }
+
+  // Placeholder logic (Level 3 will replace with real AI)
+  switch(type) {
+    case "beauty":
+      img.style.filter = "contrast(1.1) saturate(1.2)";
+      break;
+
+    case "rejuvenate":
+      img.style.filter = "brightness(1.1) blur(0.3px)";
+      break;
+
+    case "brighten":
+      img.style.filter = "brightness(1.4)";
+      break;
+
+    case "restore":
+      img.style.filter = "contrast(1.2) saturate(1.1)";
+      break;
+  }
+}
+</script>
+
+</body>
+  </html>
